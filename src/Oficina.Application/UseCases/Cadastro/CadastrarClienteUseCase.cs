@@ -1,0 +1,27 @@
+using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.Shared;
+using Oficina.Domain.Cadastro;
+using Oficina.Domain.Cadastro.ValueObjects;
+
+namespace Oficina.Application.UseCases.Cadastro;
+
+public class CadastrarClienteUseCase
+{
+    private readonly ICadastroRepository _repo;
+
+    public CadastrarClienteUseCase(ICadastroRepository repo) => _repo = repo;
+
+    public async Task<Guid> Executar(string cpfCnpj, CancellationToken ct)
+    {
+        var documento = DocumentoCpfCnpj.Criar(cpfCnpj);
+
+        if (await _repo.ExisteClientePorDocumento(documento.Valor, ct))
+            throw new OficinaException("Cliente já cadastrado com este CPF/CNPJ.", 409);
+
+        var cliente = new Cliente(documento);
+        await _repo.AdicionarCliente(cliente, ct);
+        await _repo.Salvar(ct);
+
+        return cliente.Id;
+    }
+}

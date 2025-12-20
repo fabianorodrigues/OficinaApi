@@ -1,0 +1,55 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Oficina.Application.UseCases.Oficina;
+
+namespace Oficina.Api.Controllers;
+
+[ApiController]
+[Route("api/orcamentos")]
+[Authorize]
+public class OrcamentosController : ControllerBase
+{
+    private readonly ObterOrcamentoUseCase _obter;
+    private readonly AprovarOrcamentoUseCase _aprovar;
+    private readonly RecusarOrcamentoUseCase _recusar;
+
+    public OrcamentosController(
+        ObterOrcamentoUseCase obter,
+        AprovarOrcamentoUseCase aprovar,
+        RecusarOrcamentoUseCase recusar)
+    {
+        _obter = obter;
+        _aprovar = aprovar;
+        _recusar = recusar;
+    }
+
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
+    {
+        var o = await _obter.Executar(id, ct);
+        return Ok(new
+        {
+            o.Id,
+            o.OrdemServicoId,
+            status = o.Status.ToString(),
+            o.ValorTotal,
+            o.DataCriacao,
+            itensServico = o.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
+            itensMaterial = o.ItensMaterial.Select(x => new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario })
+        });
+    }
+
+    [HttpPost("{id:guid}/aprovar")]
+    public async Task<IActionResult> Aprovar(Guid id, CancellationToken ct)
+    {
+        await _aprovar.Executar(id, ct);
+        return NoContent();
+    }
+
+    [HttpPost("{id:guid}/recusar")]
+    public async Task<IActionResult> Recusar(Guid id, CancellationToken ct)
+    {
+        await _recusar.Executar(id, ct);
+        return NoContent();
+    }
+}

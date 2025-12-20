@@ -1,0 +1,107 @@
+# Oficina API (.NET 9) — Monolito (Clean Architecture + DDD)
+
+Solução monolítica em camadas:
+- **Oficina.Api** (Web / Controllers / Swagger / JWT)
+- **Oficina.Application** (UseCases, contratos, validações, abstrações)
+- **Oficina.Domain** (DDD: Aggregates, Entidades, Value Objects, regras)
+- **Oficina.Infrastructure** (EF Core + SQL Server, Repositórios)
+
+Contextos delimitados:
+- **Cadastro**: Cliente e Veículo (pré-requisito para abrir OS)
+- **Catálogo & Estoque**: Serviço, Peça, Insumo e Estoque
+- **Oficina (Core Domain)**: Ordem de Serviço, Diagnóstico, Orçamento, Execução, Finalização, Entrega, Relatórios
+
+---
+
+## Instruções para rodar local
+
+### 1) Subir SQL Server (Docker)
+Na raiz:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d sqlserver
+```
+
+### 2) Aplicar migrations
+Na raiz:
+
+```bash
+dotnet tool install --global dotnet-ef
+dotnet ef database update -p src/Oficina.Infrastructure -s src/Oficina.Api
+```
+
+> Migration inicial no projeto (`InitialCreate`).
+
+### 3) Rodar API
+```bash
+dotnet run --project src/Oficina.Api
+```
+
+### 4) Swagger
+Abra:
+- `https://localhost:<porta>/swagger`
+
+---
+
+## Rodar via Docker (API + SQL Server)
+
+```bash
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Swagger:
+- `http://localhost:8080/swagger`
+
+> **migrations não rodam automaticamente** no start do container.
+> Você pode rodar migrations apontando para o SQL do compose, localmente, com `dotnet ef database update`.
+
+---
+
+## Autenticação (JWT simples para testes)
+
+O domínio assume usuário interno (quem chama já está autenticado).
+Para facilitar, existe um login simples:
+
+`POST /api/auth/login`
+
+```json
+{ "usuario": "admin", "senha": "admin" }
+```
+
+No Swagger: **Authorize** → `Bearer {token}`
+
+---
+
+## Fluxo
+
+1) Cadastro
+- `POST /api/clientes`
+- `POST /api/veiculos`
+
+2) Catálogo & estoque
+- `POST /api/pecas`
+- `POST /api/insumos`
+- `POST /api/servicos`
+- `POST /api/estoque/pecas/{pecaId}/ajustar`
+- `POST /api/estoque/insumos/{insumoId}/ajustar`
+
+3) Oficina
+- OS Preventiva: `POST /api/ordens-servico/preventiva` (gera orçamento imediato)
+- OS Corretiva: `POST /api/ordens-servico/corretiva` (em diagnóstico)
+- Diagnóstico + serviços: `POST /api/ordens-servico/{id}/diagnosticos` (gera orçamento)
+- Aprovar orçamento: `POST /api/orcamentos/{id}/aprovar` (baixa estoque e inicia execução)
+- Recusar orçamento: `POST /api/orcamentos/{id}/recusar` (finaliza OS sem cobrança de diagnóstico)
+- Finalizar OS: `POST /api/ordens-servico/{id}/finalizar` (registra fim execução)
+- Entregar OS: `POST /api/ordens-servico/{id}/entregar`
+
+---
+
+## Testes
+```bash
+dotnet test
+```
+
+Cobertura:
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
