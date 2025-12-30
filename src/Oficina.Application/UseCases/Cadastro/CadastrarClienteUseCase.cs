@@ -13,7 +13,7 @@ public class CadastrarClienteUseCase
 
     public async Task<Guid> Executar(string cpfCnpj, CancellationToken ct)
     {
-        var documento = DocumentoCpfCnpj.Criar(cpfCnpj);
+        var documento = new DocumentoCpfCnpj(cpfCnpj);
 
         if (await _repo.ExisteClientePorDocumento(documento.Valor, ct))
             throw new OficinaException("Cliente já cadastrado com este CPF/CNPJ.", 409);

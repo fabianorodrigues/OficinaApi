@@ -23,7 +23,25 @@ public class VeiculoMap : IEntityTypeConfiguration<Veiculo>
             renavam.Property(x => x.Valor).HasColumnName("Renavam").HasMaxLength(11).IsRequired();
         });
 
-        b.HasIndex(x => x.Placa.Valor).IsUnique();
-        b.HasIndex(x => x.Renavam.Valor).IsUnique();
+        b.OwnsOne(x => x.Placa, placa =>
+        {
+            placa.Property(p => p.Valor)
+                 .HasColumnName("Placa")
+                 .HasMaxLength(7)
+                 .IsRequired();
+
+            placa.HasIndex(p => p.Valor).IsUnique();
+        });
+
+        b.OwnsOne(x => x.Renavam, renavam =>
+        {
+            renavam.Property(p => p.Valor)
+                   .HasColumnName("Renavam")
+                   .HasMaxLength(11)
+                   .IsRequired();
+
+            renavam.HasIndex(p => p.Valor).IsUnique();
+        });
+
     }
 }

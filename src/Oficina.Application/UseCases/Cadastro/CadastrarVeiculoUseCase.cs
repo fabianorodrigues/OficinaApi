@@ -17,12 +17,12 @@ public class CadastrarVeiculoUseCase
         if (cliente is null)
             throw new OficinaException("Cliente não encontrado.", 404);
 
-        var placaVo = Placa.Criar(placa);
+        var placaVo = new Placa(placa);
 
         if (await _repo.ExisteVeiculoPorPlaca(placaVo.Valor, ct))
             throw new OficinaException("Já existe veículo cadastrado com esta placa.", 409);
 
-        var veiculo = new Veiculo(clienteId, placaVo, Renavam.Criar(renavam));
+        var veiculo = new Veiculo(clienteId, placaVo, new Renavam(renavam));
 
         await _repo.AdicionarVeiculo(veiculo, ct);
         await _repo.Salvar(ct);

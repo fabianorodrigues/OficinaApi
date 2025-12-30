@@ -14,10 +14,9 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
-        services.AddDbContext<OficinaDbContext>(opt =>
-        {
-            opt.UseSqlServer(config.GetConnectionString("DefaultConnection"));
-        });
+        var cs = config.GetConnectionString("SqlServer");
+        services.AddDbContext<OficinaDbContext>(opt => opt.UseSqlServer(cs));
+
 
         services.AddScoped<ICadastroRepository, CadastroRepository>();
         services.AddScoped<ICatalogoEstoqueRepository, CatalogoEstoqueRepository>();
