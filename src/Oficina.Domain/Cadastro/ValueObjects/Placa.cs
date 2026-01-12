@@ -2,28 +2,33 @@ using System.Text.RegularExpressions;
 
 namespace Oficina.Domain.Cadastro.ValueObjects;
 
-public class Placa 
+public sealed class Placa
 {
-    public string Valor { get; }
+    public string Valor { get; private set; } = default!;
 
-    private Placa(string valorNormalizado)
+    private Placa() { } // EF
+
+    public Placa(string valor)
     {
-        Valor = valorNormalizado;
+        Valor = Normalizar(valor);
+        Validar(Valor);
     }
 
-    public static Placa Criar(string valor)
+    private static string Normalizar(string valor)
+        => (valor ?? string.Empty)
+            .Trim()
+            .ToUpperInvariant()
+            .Replace("-", "");
+
+    private static void Validar(string valorNormalizado)
     {
-        if (string.IsNullOrWhiteSpace(valor))
+        if (string.IsNullOrWhiteSpace(valorNormalizado))
             throw new ArgumentException("Placa é obrigatória.");
 
-        var p = valor.Trim().ToUpperInvariant().Replace("-", "");
+        if (valorNormalizado.Length != 7)
+            throw new ArgumentException("Placa deve ter 7 caracteres.");
 
-        var antigo = Regex.IsMatch(p, "^[A-Z]{3}[0-9]{4}$");
-        var mercosul = Regex.IsMatch(p, "^[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}$");
-
-        if (!antigo && !mercosul)
-            throw new ArgumentException("Placa inválida.");
-
-        return new Placa(p);
+        if (!valorNormalizado.All(char.IsLetterOrDigit))
+            throw new ArgumentException("Placa deve conter apenas letras e números.");
     }
 }

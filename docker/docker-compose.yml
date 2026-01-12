@@ -1,31 +1,49 @@
+version: "3.9"
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Your_password123
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Your_password123"
     ports:
       - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Your_password123 -Q 'SELECT 1' -C || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Your_password123 -Q 'SELECT 1' -C || exit 1"
+        ]
       interval: 10s
       timeout: 5s
       retries: 20
 
   api:
+    container_name: oficina_api
     build:
       context: ..
       dockerfile: docker/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://+:8080
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=OficinaDb;User Id=sa;Password=Your_password123;TrustServerCertificate=True;
-      - Jwt__Key=CHANGE_ME_TO_A_LONG_RANDOM_SECRET_KEY_32+_CHARS
-      - Jwt__Issuer=Oficina.Api
-      - Jwt__Audience=Oficina.Api
-      - Jwt__ExpMinutes=120
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Docker"
+      ConnectionStrings__DefaultConnection: >
+        Server=sqlserver,1433;
+        Database=OficinaDb;
+        User Id=sa;
+        Password=Your_password123;
+        TrustServerCertificate=True;
+      Jwt__Key: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET_KEY_32+_CHARS"
+      Jwt__Issuer: "Oficina.Api"
+      Jwt__Audience: "Oficina.Api"
+      Jwt__ExpMinutes: "120"
     ports:
       - "8080:8080"
     depends_on:
       sqlserver:
         condition: service_healthy
+
+volumes:
+  sqlserverdata:

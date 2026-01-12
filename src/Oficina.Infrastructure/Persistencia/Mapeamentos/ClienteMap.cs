@@ -16,6 +16,14 @@ public class ClienteMap : IEntityTypeConfiguration<Cliente>
             doc.Property(x => x.Valor).HasColumnName("CpfCnpj").HasMaxLength(14).IsRequired();
         });
 
-        b.HasIndex(x => x.Documento.Valor).IsUnique();
+        b.OwnsOne(x => x.Documento, doc =>
+        {
+            doc.Property(p => p.Valor)
+               .HasColumnName("Documento")
+               .HasMaxLength(14)
+               .IsRequired();
+
+            doc.HasIndex(p => p.Valor).IsUnique();
+        });
     }
 }

@@ -13,6 +13,19 @@ Contextos delimitados:
 
 ---
 
+## Instruções para configurar .Net 9
+
+### 1) Remover a versão atual (caso não seja a versão 9.0.1)
+```bash
+dotnet-ef --version
+dotnet tool uninstall --global dotnet-ef
+```
+
+### 2) Instalar a versão 9.0.1
+```bash
+dotnet tool install --global dotnet-ef --version 9.0.1
+```
+
 ## Instruções para rodar local
 
 ### 1) Subir SQL Server (Docker)
@@ -26,11 +39,8 @@ docker compose -f docker/docker-compose.yml up -d sqlserver
 Na raiz:
 
 ```bash
-dotnet tool install --global dotnet-ef
 dotnet ef database update -p src/Oficina.Infrastructure -s src/Oficina.Api
 ```
-
-> Migration inicial no projeto (`InitialCreate`).
 
 ### 3) Rodar API
 ```bash
@@ -39,7 +49,7 @@ dotnet run --project src/Oficina.Api
 
 ### 4) Swagger
 Abra:
-- `https://localhost:<porta>/swagger`
+- `http://localhost:<porta>/swagger`
 
 ---
 

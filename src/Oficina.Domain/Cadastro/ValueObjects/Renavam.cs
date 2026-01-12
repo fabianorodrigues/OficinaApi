@@ -1,23 +1,26 @@
 namespace Oficina.Domain.Cadastro.ValueObjects;
 
-public class Renavam
+public sealed class Renavam
 {
-    public string Valor { get; }
+    public string Valor { get; private set; } = default!;
 
-    private Renavam(string valorNormalizado)
+    private Renavam() { } // EF
+
+    public Renavam(string valor)
     {
-        Valor = valorNormalizado;
+        Valor = Normalizar(valor);
+        Validar(Valor);
     }
 
-    public static Renavam Criar(string valor)
+    private static string Normalizar(string valor)
+        => new string((valor ?? string.Empty).Where(char.IsDigit).ToArray());
+
+    private static void Validar(string valorNormalizado)
     {
-        if (string.IsNullOrWhiteSpace(valor))
+        if (string.IsNullOrWhiteSpace(valorNormalizado))
             throw new ArgumentException("RENAVAM é obrigatório.");
 
-        var digitos = new string(valor.Where(char.IsDigit).ToArray());
-        if (digitos.Length != 11)
-            throw new ArgumentException("RENAVAM inválido.");
-
-        return new Renavam(digitos);
+        if (valorNormalizado.Length != 11)
+            throw new ArgumentException("RENAVAM deve ter 11 dígitos.");
     }
 }

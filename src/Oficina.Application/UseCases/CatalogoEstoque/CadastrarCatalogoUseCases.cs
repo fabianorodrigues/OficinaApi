@@ -1,4 +1,5 @@
 using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.Shared;
 using Oficina.Domain.Cadastro;
 using Oficina.Domain.CatalogoEstoque;
 
@@ -43,6 +44,23 @@ public class CadastrarPecaUseCase
         await _repo.Salvar(ct);
         return peca.Id;
     }
+
+}
+
+
+
+
+public class ObterPecaUseCase
+{
+    //private readonly ICatalogoEstoqueRepository _repo;
+    //public CadastrarServicoUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+
+    private readonly ICatalogoEstoqueRepository _repo;
+    public ObterPecaUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+    public async Task<Peca> Executar(Guid id, CancellationToken ct)
+        => await _repo.ObterPeca(id, ct) ?? throw new OficinaException("Peça não encontrada.", 404);
 }
 
 public class CadastrarInsumoUseCase
@@ -61,4 +79,13 @@ public class CadastrarInsumoUseCase
         await _repo.Salvar(ct);
         return insumo.Id;
     }
+}
+
+public class ObterInsumoUseCase
+{
+    private readonly ICatalogoEstoqueRepository _repo;
+    public ObterInsumoUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+    public async Task<Insumo> Executar(Guid id, CancellationToken ct)
+        => await _repo.ObterInsumo(id, ct) ?? throw new OficinaException("Insumo não encontrado.", 404);
 }

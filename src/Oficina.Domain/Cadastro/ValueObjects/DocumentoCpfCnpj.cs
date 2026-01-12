@@ -2,25 +2,27 @@ using Oficina.Domain.SharedKernel;
 
 namespace Oficina.Domain.Cadastro.ValueObjects;
 
-public class DocumentoCpfCnpj
+public sealed class DocumentoCpfCnpj
 {
-    public string Valor { get; }
+    public string Valor { get; private set; } = default!;
 
-    private DocumentoCpfCnpj(string valorNormalizado)
+    private DocumentoCpfCnpj() { } // EF
+
+    public DocumentoCpfCnpj(string valor)
     {
-        Valor = valorNormalizado;
+        Valor = Normalizar(valor);
+        Validar(Valor);
     }
 
-    public static DocumentoCpfCnpj Criar(string valor)
+    private static string Normalizar(string valor) =>
+        new string(valor.Where(char.IsDigit).ToArray());
+
+    private static void Validar(string valorNormalizado)
     {
-        if (string.IsNullOrWhiteSpace(valor))
-            throw new ArgumentException("CPF/CNPJ é obrigatório.");
+        if (string.IsNullOrWhiteSpace(valorNormalizado))
+            throw new ArgumentException("Documento é obrigatório.");
 
-        var digitos = new string(valor.Where(char.IsDigit).ToArray());
-        if (digitos.Length is not (11 or 14))
-            throw new ArgumentException("CPF/CNPJ inválido.");
-
-        return new DocumentoCpfCnpj(digitos);
+        if (valorNormalizado.Length != 11 && valorNormalizado.Length != 14)
+            throw new ArgumentException("Documento deve ter 11 (CPF) ou 14 (CNPJ) dígitos.");
     }
-
 }
