@@ -84,3 +84,35 @@ public class ObterInsumoUseCase
     public async Task<Insumo> Executar(Guid id, CancellationToken ct)
         => await _repo.ObterInsumo(id, ct) ?? throw new OficinaException("Insumo não encontrado.", 404);
 }
+
+public class AtualizarPecaUseCase
+{
+    private readonly ICatalogoEstoqueRepository _repo;
+    public AtualizarPecaUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+    public async Task Executar(Guid id, decimal precoUnitario, string descricao, CancellationToken ct)
+    {
+        var peca = await _repo.ObterPeca(id, ct) ?? throw new OficinaException("Peça não encontrada.", 404);
+
+        peca.DefinirDescricao(descricao);
+        peca.DefinirPreco(precoUnitario);
+
+        await _repo.Salvar(ct);
+    }
+}
+
+public class AtualizarInsumoUseCase
+{
+    private readonly ICatalogoEstoqueRepository _repo;
+    public AtualizarInsumoUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+    public async Task Executar(Guid id, decimal precoUnitario, string descricao, CancellationToken ct)
+    {
+        var insumo = await _repo.ObterInsumo(id, ct) ?? throw new OficinaException("Insumo não encontrado.", 404);
+
+        insumo.DefinirDescricao(descricao);
+        insumo.DefinirPreco(precoUnitario);
+
+        await _repo.Salvar(ct);
+    }
+}

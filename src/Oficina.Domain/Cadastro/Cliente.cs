@@ -27,7 +27,7 @@ public class Cliente : AgregadoRaiz
         Contato = contato ?? throw new ArgumentNullException(nameof(contato));
     }
 
-    private void DefinirNome(string nome)
+    public void AlterarNome(string nome)
     {
         if (string.IsNullOrWhiteSpace(nome))
             throw new ArgumentException("Nome é obrigatório.");

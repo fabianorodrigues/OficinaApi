@@ -11,15 +11,18 @@ namespace Oficina.Api.Controllers;
 public class VeiculosController : ControllerBase
 {
     private readonly CadastrarVeiculoUseCase _cadastrar;
+    private readonly AtualizarVeiculoUseCase _atualizar;
     private readonly ObterVeiculoUseCase _obter;
     private readonly ListarVeiculosPorClienteUseCase _listarPorCliente;
 
     public VeiculosController(
         CadastrarVeiculoUseCase cadastrar,
+        AtualizarVeiculoUseCase atualizar,
         ObterVeiculoUseCase obter,
         ListarVeiculosPorClienteUseCase listarPorCliente)
     {
         _cadastrar = cadastrar;
+        _atualizar = atualizar;
         _obter = obter;
         _listarPorCliente = listarPorCliente;
     }
@@ -43,6 +46,13 @@ public class VeiculosController : ControllerBase
             renavam = v.Renavam.Valor,
             modelo = new { descricao = v.Modelo.Descricao, marca = v.Modelo.Marca, ano = v.Modelo.Ano }
         });
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] AtualizarVeiculoRequest req, CancellationToken ct)
+    {
+        await _atualizar.Executar(id, req.Placa, req.Renavam, req.Modelo, ct);
+        return NoContent();
     }
 
     [HttpGet("por-cliente/{clienteId:guid}")]

@@ -12,11 +12,16 @@ namespace Oficina.Api.Controllers;
 public class ClientesController : ControllerBase
 {
     private readonly CadastrarClienteUseCase _cadastrar;
+    private readonly AtualizarClienteUseCase _atualizar;
     private readonly ObterClienteUseCase _obter;
 
-    public ClientesController(CadastrarClienteUseCase cadastrar, ObterClienteUseCase obter)
+    public ClientesController(
+        CadastrarClienteUseCase cadastrar,
+        AtualizarClienteUseCase atualizar,
+        ObterClienteUseCase obter)
     {
         _cadastrar = cadastrar;
+        _atualizar = atualizar;
         _obter = obter;
     }
 
@@ -32,12 +37,19 @@ public class ClientesController : ControllerBase
     {
         var cliente = await _obter.Executar(id, ct);
         return Ok(
-            new 
-            { 
-                cliente.Id, 
-                cpfCnpj = cliente.Documento.Valor, 
-                nome = cliente.Nome,  
+            new
+            {
+                cliente.Id,
+                cpfCnpj = cliente.Documento.Valor,
+                nome = cliente.Nome,
                 contato = new { email = cliente.Contato.Email, telefone = cliente.Contato.Telefone }
             });
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] AtualizarClienteRequest req, CancellationToken ct)
+    {
+        await _atualizar.Executar(id, req.CpfCnpj, req.Nome, req.Email, req.Telefone, ct);
+        return NoContent();
     }
 }

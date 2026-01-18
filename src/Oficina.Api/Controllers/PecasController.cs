@@ -12,13 +12,16 @@ public class PecasController : ControllerBase
 {
     private readonly CadastrarPecaUseCase _cadastrar;
     private readonly ObterPecaUseCase _obter;
+    private readonly AtualizarPecaUseCase _atualizar;
 
     public PecasController(
         CadastrarPecaUseCase cadastrar,
-        ObterPecaUseCase obter)
+        ObterPecaUseCase obter,
+        AtualizarPecaUseCase atualizar)
     {
         _cadastrar = cadastrar;
         _obter = obter;
+        _atualizar = atualizar;
     }
 
     [HttpPost]
@@ -33,5 +36,12 @@ public class PecasController : ControllerBase
     {
         var v = await _obter.Executar(id, ct);
         return Ok(new { v.Id, v.Descricao, v.PrecoUnitario });
+    }
+
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] AtualizarPecaRequest req, CancellationToken ct)
+    {
+        await _atualizar.Executar(id, req.PrecoUnitario, req.Descricao, ct);
+        return NoContent();
     }
 }
