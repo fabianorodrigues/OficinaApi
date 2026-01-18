@@ -60,7 +60,8 @@ Abra:
 ---
 
 ## Rodar via Docker (API + SQL Server)
-### 1) Subir SQL Server (Docker)
+
+### 1) Subir no Docker (API + SQL Server)
 Na raiz:
 
 ```bash
