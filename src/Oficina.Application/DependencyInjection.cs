@@ -14,7 +14,9 @@ public static class DependencyInjection
 
         // Cadastro
         services.AddScoped<CadastrarClienteUseCase>();
+        services.AddScoped<AtualizarClienteUseCase>();
         services.AddScoped<CadastrarVeiculoUseCase>();
+        services.AddScoped<AtualizarVeiculoUseCase>();
         services.AddScoped<ObterClienteUseCase>();
         services.AddScoped<ObterVeiculoUseCase>();
         services.AddScoped<ListarVeiculosPorClienteUseCase>();
