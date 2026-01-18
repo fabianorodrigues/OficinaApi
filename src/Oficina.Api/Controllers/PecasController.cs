@@ -32,6 +32,6 @@ public class PecasController : ControllerBase
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
     {
         var v = await _obter.Executar(id, ct);
-        return Ok(new { v.Id, v.PrecoUnitario });
+        return Ok(new { v.Id, v.Descricao, v.PrecoUnitario });
     }
 }
