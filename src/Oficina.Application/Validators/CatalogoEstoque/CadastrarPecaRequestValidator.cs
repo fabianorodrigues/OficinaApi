@@ -8,5 +8,9 @@ public class CadastrarPecaRequestValidator : AbstractValidator<CadastrarPecaRequ
     public CadastrarPecaRequestValidator()
     {
         RuleFor(x => x.PrecoUnitario).GreaterThanOrEqualTo(0);
+
+        RuleFor(x => x.Descricao)
+            .NotEmpty()
+            .MaximumLength(200);
     }
 }

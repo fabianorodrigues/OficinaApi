@@ -25,7 +25,7 @@ public class InsumosController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Cadastrar([FromBody] CadastrarInsumoRequest req, CancellationToken ct)
     {
-        var id = await _cadastrar.Executar(req.PrecoUnitario, ct);
+        var id = await _cadastrar.Executar(req.PrecoUnitario, req.Descricao, ct);
         return CreatedAtAction(nameof(Cadastrar), new { id }, new { id });
     }
 

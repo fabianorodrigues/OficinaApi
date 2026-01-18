@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Oficina.Application.DTO.CatalogoEstoque;
-using Oficina.Application.UseCases.Cadastro;
 using Oficina.Application.UseCases.CatalogoEstoque;
 
 namespace Oficina.Api.Controllers;
@@ -26,7 +24,7 @@ public class PecasController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Cadastrar([FromBody] CadastrarPecaRequest req, CancellationToken ct)
     {
-        var id = await _cadastrar.Executar(req.PrecoUnitario, ct);
+        var id = await _cadastrar.Executar(req.PrecoUnitario, req.Descricao, ct);
         return CreatedAtAction(nameof(Cadastrar), new { id }, new { id });
     }
 
