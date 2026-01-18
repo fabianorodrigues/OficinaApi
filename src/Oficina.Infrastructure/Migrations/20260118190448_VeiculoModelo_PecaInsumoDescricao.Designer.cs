@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oficina.Infrastructure.Persistencia;
 
@@ -11,9 +12,11 @@ using Oficina.Infrastructure.Persistencia;
 namespace Oficina.Infrastructure.Migrations
 {
     [DbContext(typeof(OficinaDbContext))]
-    partial class OficinaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260118190448_VeiculoModelo_PecaInsumoDescricao")]
+    partial class VeiculoModelo_PecaInsumoDescricao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,11 +30,6 @@ namespace Oficina.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
 
                     b.HasKey("Id");
 
@@ -204,31 +202,6 @@ namespace Oficina.Infrastructure.Migrations
 
             modelBuilder.Entity("Oficina.Domain.Cadastro.Cliente", b =>
                 {
-                    b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.Contato", "Contato", b1 =>
-                        {
-                            b1.Property<Guid>("ClienteId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("Email")
-                                .IsRequired()
-                                .HasMaxLength(150)
-                                .HasColumnType("nvarchar(150)")
-                                .HasColumnName("ContatoEmail");
-
-                            b1.Property<string>("Telefone")
-                                .IsRequired()
-                                .HasMaxLength(20)
-                                .HasColumnType("nvarchar(20)")
-                                .HasColumnName("ContatoTelefone");
-
-                            b1.HasKey("ClienteId");
-
-                            b1.ToTable("Clientes");
-
-                            b1.WithOwner()
-                                .HasForeignKey("ClienteId");
-                        });
-
                     b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.DocumentoCpfCnpj", "Documento", b1 =>
                         {
                             b1.Property<Guid>("ClienteId")
@@ -250,9 +223,6 @@ namespace Oficina.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ClienteId");
                         });
-
-                    b.Navigation("Contato")
-                        .IsRequired();
 
                     b.Navigation("Documento")
                         .IsRequired();

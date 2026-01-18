@@ -17,7 +17,7 @@ public class CadastrarClienteUseCaseTests
 
         var uc = new CadastrarClienteUseCase(repo.Object);
 
-        var id = await uc.Executar("111.444.777-35", CancellationToken.None);
+        var id = await uc.Executar("111.444.777-35", "Teste Nome", "email@email.com", "11942189715", CancellationToken.None);
 
         Assert.NotEqual(Guid.Empty, id);
         repo.Verify(x => x.AdicionarCliente(It.IsAny<Cliente>(), It.IsAny<CancellationToken>()), Times.Once);

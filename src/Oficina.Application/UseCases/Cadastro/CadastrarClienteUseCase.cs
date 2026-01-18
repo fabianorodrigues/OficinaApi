@@ -11,14 +11,16 @@ public class CadastrarClienteUseCase
 
     public CadastrarClienteUseCase(ICadastroRepository repo) => _repo = repo;
 
-    public async Task<Guid> Executar(string cpfCnpj, CancellationToken ct)
+    public async Task<Guid> Executar(string cpfCnpj, string nome, string email, string telefone, CancellationToken ct)
     {
         var documento = new DocumentoCpfCnpj(cpfCnpj);
 
         if (await _repo.ExisteClientePorDocumento(documento.Valor, ct))
             throw new OficinaException("Cliente já cadastrado com este CPF/CNPJ.", 409);
 
-        var cliente = new Cliente(documento);
+        var contato = new Contato(email, telefone);
+
+        var cliente = new Cliente(documento, nome, contato);
         await _repo.AdicionarCliente(cliente, ct);
         await _repo.Salvar(ct);
 

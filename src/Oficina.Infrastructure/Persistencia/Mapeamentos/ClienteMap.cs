@@ -25,5 +25,22 @@ public class ClienteMap : IEntityTypeConfiguration<Cliente>
 
             doc.HasIndex(p => p.Valor).IsUnique();
         });
+
+        b.Property(x => x.Nome)
+        .HasMaxLength(150)
+        .IsRequired();
+
+        b.OwnsOne(x => x.Contato, contato =>
+        {
+            contato.Property(c => c.Email)
+                .HasColumnName("ContatoEmail")
+                .HasMaxLength(150)
+                .IsRequired();
+
+            contato.Property(c => c.Telefone)
+                .HasColumnName("ContatoTelefone")
+                .HasMaxLength(20)
+                .IsRequired();
+        });
     }
 }
