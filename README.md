@@ -1,5 +1,12 @@
 # Oficina API (.NET 9) — Monolito (Clean Architecture + DDD)
 
+
+## Tecnologias Utilizadas
+- ** Linguagem escolhida: .NET (C#)
+- ** Arquitetura escolhida: Clean Architecture
+- ** Banco de Dados: MS Sql Server
+
+
 Solução monolítica em camadas:
 - **Oficina.Api** (Web / Controllers / Swagger / JWT)
 - **Oficina.Application** (UseCases, contratos, validações, abstrações)
@@ -39,7 +46,7 @@ docker compose -f docker/docker-compose.yml up -d sqlserver
 Na raiz:
 
 ```bash
-dotnet ef database update -p src/Oficina.Infrastructure -s src/Oficina.Api
+dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj
 ```
 
 ### 3) Rodar API
@@ -50,16 +57,24 @@ dotnet run --project src/Oficina.Api
 ### 4) Swagger
 Abra:
 - `http://localhost:<porta>/swagger`
-
 ---
 
 ## Rodar via Docker (API + SQL Server)
+### 1) Subir SQL Server (Docker)
+Na raiz:
 
 ```bash
 docker compose -f docker/docker-compose.yml up --build
 ```
 
-Swagger:
+### 2) Aplicar migrations
+Na raiz:
+
+```bash
+dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj
+```
+
+### 3) Swagger:
 - `http://localhost:8080/swagger`
 
 > **migrations não rodam automaticamente** no start do container.
@@ -82,7 +97,7 @@ No Swagger: **Authorize** → `Bearer {token}`
 
 ---
 
-## Fluxo
+## Fluxo e Endpoints
 
 1) Cadastro
 - `POST /api/clientes`
@@ -103,7 +118,6 @@ No Swagger: **Authorize** → `Bearer {token}`
 - Recusar orçamento: `POST /api/orcamentos/{id}/recusar` (finaliza OS sem cobrança de diagnóstico)
 - Finalizar OS: `POST /api/ordens-servico/{id}/finalizar` (registra fim execução)
 - Entregar OS: `POST /api/ordens-servico/{id}/entregar`
-
 ---
 
 ## Testes
@@ -115,3 +129,7 @@ Cobertura:
 ```bash
 dotnet test --collect:"XPlat Code Coverage"
 ```
+
+## Documentações
+
+- [Miro do projeto](https://miro.com/app/board/uXjVGPRzlmM=/)
