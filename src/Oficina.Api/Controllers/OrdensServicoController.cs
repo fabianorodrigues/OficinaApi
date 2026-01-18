@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.DTO.Oficina;
 using Oficina.Application.UseCases.Oficina;
+using Oficina.Domain.Oficina.Enums;
 
 namespace Oficina.Api.Controllers;
 
@@ -17,6 +19,7 @@ public class OrdensServicoController : ControllerBase
     private readonly ListarOrdensServicoUseCase _listar;
     private readonly FinalizarOrdemServicoUseCase _finalizar;
     private readonly EntregarOrdemServicoUseCase _entregar;
+    private readonly ICatalogoEstoqueRepository _catalogo;
 
     public OrdensServicoController(
         CriarOsPreventivaUseCase criarPreventiva,
@@ -25,7 +28,8 @@ public class OrdensServicoController : ControllerBase
         ObterOrdemServicoUseCase obter,
         ListarOrdensServicoUseCase listar,
         FinalizarOrdemServicoUseCase finalizar,
-        EntregarOrdemServicoUseCase entregar)
+        EntregarOrdemServicoUseCase entregar,
+        ICatalogoEstoqueRepository catalogo)
     {
         _criarPreventiva = criarPreventiva;
         _criarCorretiva = criarCorretiva;
@@ -34,6 +38,7 @@ public class OrdensServicoController : ControllerBase
         _listar = listar;
         _finalizar = finalizar;
         _entregar = entregar;
+        _catalogo = catalogo;
     }
 
     [HttpPost("preventiva")]
@@ -62,6 +67,22 @@ public class OrdensServicoController : ControllerBase
     {
         var (os, orcamento) = await _obter.Executar(id, ct);
 
+        List<object>? itensMaterial = null;
+        if (orcamento is not null)
+        {
+            itensMaterial = new List<object>();
+            foreach (var x in orcamento.ItensMaterial)
+            {
+                string? descricao = null;
+                if (x.Tipo == TipoMaterial.Peca)
+                    descricao = (await _catalogo.ObterPeca(x.MaterialId, ct))?.Descricao;
+                else
+                    descricao = (await _catalogo.ObterInsumo(x.MaterialId, ct))?.Descricao;
+
+                itensMaterial.Add(new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario, descricao });
+            }
+        }
+
         return Ok(new
         {
             os.Id,
@@ -79,7 +100,7 @@ public class OrdensServicoController : ControllerBase
                 status = orcamento.Status.ToString(),
                 orcamento.ValorTotal,
                 itensServico = orcamento.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
-                itensMaterial = orcamento.ItensMaterial.Select(x => new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario })
+                itensMaterial
             }
         });
     }

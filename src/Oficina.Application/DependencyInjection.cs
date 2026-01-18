@@ -25,8 +25,10 @@ public static class DependencyInjection
         services.AddScoped<CadastrarServicoUseCase>();
         services.AddScoped<CadastrarPecaUseCase>();
         services.AddScoped<ObterPecaUseCase>();
+        services.AddScoped<AtualizarPecaUseCase>();
         services.AddScoped<CadastrarInsumoUseCase>();
         services.AddScoped<ObterInsumoUseCase>();
+        services.AddScoped<AtualizarInsumoUseCase>();
         services.AddScoped<ObterEstoquePecaUseCase>();
         services.AddScoped<ObterEstoqueInsumoUseCase>();
         services.AddScoped<AjustarEstoquePecaUseCase>();
