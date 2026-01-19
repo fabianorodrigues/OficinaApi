@@ -18,6 +18,10 @@ Contextos delimitados:
 - **Catálogo & Estoque**: Serviço, Peça, Insumo e Estoque
 - **Oficina (Core Domain)**: Ordem de Serviço, Diagnóstico, Orçamento, Execução, Finalização, Entrega, Relatórios
 
+## 📊 Code Coverage
+
+![Coverage](./badges/badge_combined.svg)
+
 ---
 
 ## Instruções para configurar .Net 9
