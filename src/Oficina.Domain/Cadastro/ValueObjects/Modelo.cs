@@ -19,7 +19,7 @@ public sealed class Modelo
         if (string.IsNullOrWhiteSpace(marcaNorm))
             throw new ArgumentException("Marca e obrigatoria.");
 
-        if (ano <= 0)
+        if (ano < 1900 || ano > DateTime.Now.Year)
             throw new ArgumentException("Ano e obrigatorio.");
 
         Descricao = descricaoNorm;
