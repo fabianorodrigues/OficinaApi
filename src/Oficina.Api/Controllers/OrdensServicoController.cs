@@ -93,7 +93,6 @@ public class OrdensServicoController : ControllerBase
             os.DataInicioExecucao,
             os.DataFimExecucao,
             diagnostico = os.Diagnostico is null ? null : new { os.Diagnostico.Descricao, os.Diagnostico.DataRegistro },
-            servicos = os.ItensServico.Select(x => new { x.ServicoId }),
             orcamento = orcamento is null ? null : new
             {
                 orcamento.Id,

@@ -31,8 +31,12 @@ public class OrdemServicoMap : IEntityTypeConfiguration<OrdemServico>
         b.OwnsOne(x => x.Diagnostico, d =>
         {
             d.ToTable("Diagnosticos");
+
             d.WithOwner().HasForeignKey("OrdemServicoId");
-            d.HasKey(x => x.Id);
+
+            d.Property<Guid>("OrdemServicoId");
+            d.HasKey("OrdemServicoId");
+
             d.Property(x => x.Descricao).HasMaxLength(2000).IsRequired();
             d.Property(x => x.DataRegistro).IsRequired();
         });

@@ -13,7 +13,6 @@ public class Diagnostico
         DataRegistro = DateTimeOffset.UtcNow;
     }
 
-    public Guid Id { get; private set; } = Guid.NewGuid();
     public string Descricao { get; private set; } = default!;
     public DateTimeOffset DataRegistro { get; private set; }
 }
