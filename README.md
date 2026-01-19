@@ -106,14 +106,25 @@ No Swagger: **Authorize** → `Bearer {token}`
 
 1) Cadastro
 - `POST /api/clientes`
+- `PUT /api/clientes/{id}`
+- `GET api/clientes/{id}`
 - `POST /api/veiculos`
+- `PUT /api/veiculos/{id}`
+- `GET api/veiculos/{id}`
+- `GET api/veiculos/por-cliente/{clienteId}`
 
 2) Catálogo & estoque
 - `POST /api/pecas`
+- `GET api/pecas/{id}`
+- `PUT /api/pecas/{id}`
 - `POST /api/insumos`
+- `GET api/insumos/{id}`
+- `PUT /api/insumos/{id}`
 - `POST /api/servicos`
 - `POST /api/estoque/pecas/{pecaId}/ajustar`
+- `GET /api/estoque/pecas/{id}`
 - `POST /api/estoque/insumos/{insumoId}/ajustar`
+- `GET /api/estoque/insumos/{id}`
 
 3) Oficina
 - OS Preventiva: `POST /api/ordens-servico/preventiva` (gera orçamento imediato)
