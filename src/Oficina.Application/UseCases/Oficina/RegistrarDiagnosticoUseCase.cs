@@ -28,8 +28,9 @@ public class RegistrarDiagnosticoUseCase
                  ?? throw new OficinaException("Ordem de serviço não encontrada.", 404);
 
         os.RegistrarDiagnostico(descricao, servicoIds);
+        await _oficina.Salvar(ct);
 
-        var orcamento = await GerarOrcamento(os, ct);
+        var orcamento = await GerarOrcamento(os.Id, servicoIds, ct);
         os.VincularOrcamento(orcamento.Id);
 
         await _oficina.AdicionarOrcamento(orcamento, ct);
@@ -40,16 +41,16 @@ public class RegistrarDiagnosticoUseCase
         return orcamento.Id;
     }
 
-    private async Task<Orcamento> GerarOrcamento(OrdemServico os, CancellationToken ct)
+    private async Task<Orcamento> GerarOrcamento(Guid osId, IEnumerable<Guid> servicoIds, CancellationToken ct)
     {
         var itensServico = new List<OrcamentoItemServico>();
         var itensMaterial = new List<OrcamentoItemMaterial>();
         decimal total = 0m;
 
-        foreach (var item in os.ItensServico)
+        foreach (var servicoId in servicoIds)
         {
-            var servico = await _catalogo.ObterServico(item.ServicoId, ct)
-                         ?? throw new OficinaException($"Serviço não encontrado: {item.ServicoId}", 404);
+            var servico = await _catalogo.ObterServico(servicoId, ct)
+                         ?? throw new OficinaException($"Serviço não encontrado: {servicoId}", 404);
 
             itensServico.Add(new OrcamentoItemServico(servico.Id, servico.MaoDeObra));
             total += servico.MaoDeObra;
@@ -73,7 +74,7 @@ public class RegistrarDiagnosticoUseCase
             }
         }
 
-        var orcamento = new Orcamento(os.Id, total);
+        var orcamento = new Orcamento(osId, total);
         orcamento.DefinirItensServico(itensServico);
         orcamento.DefinirItensMaterial(itensMaterial);
         return orcamento;
