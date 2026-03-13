@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.DTO.Oficina;
 using Oficina.Application.UseCases.Oficina;
 using Oficina.Domain.Oficina.Enums;
 
@@ -14,17 +15,20 @@ public class OrcamentosController : ControllerBase
     private readonly ObterOrcamentoUseCase _obter;
     private readonly AprovarOrcamentoUseCase _aprovar;
     private readonly RecusarOrcamentoUseCase _recusar;
+    private readonly NotificarOrcamentoExternoUseCase _notificarExterno;
     private readonly ICatalogoEstoqueRepository _catalogo;
 
     public OrcamentosController(
         ObterOrcamentoUseCase obter,
         AprovarOrcamentoUseCase aprovar,
         RecusarOrcamentoUseCase recusar,
+        NotificarOrcamentoExternoUseCase notificarExterno,
         ICatalogoEstoqueRepository catalogo)
     {
         _obter = obter;
         _aprovar = aprovar;
         _recusar = recusar;
+        _notificarExterno = notificarExterno;
         _catalogo = catalogo;
     }
 
@@ -54,6 +58,14 @@ public class OrcamentosController : ControllerBase
             itensServico = o.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
             itensMaterial
         });
+    }
+
+
+    [HttpPost("notificacoes")]
+    public async Task<IActionResult> NotificarExterno([FromBody] NotificarOrcamentoRequest req, CancellationToken ct)
+    {
+        await _notificarExterno.Executar(req.OrcamentoId, req.Status, ct);
+        return NoContent();
     }
 
     [HttpPost("{id:guid}/aprovar")]

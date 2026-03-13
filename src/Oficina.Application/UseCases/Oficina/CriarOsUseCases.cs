@@ -31,6 +31,7 @@ public class CriarOsPreventivaUseCase
         if (veiculo is null) throw new OficinaException("Veículo não encontrado.", 404);
 
         var os = OrdemServico.CriarPreventiva(veiculoId, servicoIds);
+        os.AvancarParaFluxoInicial();
 
         var orcamento = await GerarOrcamento(os, ct);
         os.VincularOrcamento(orcamento.Id);
@@ -101,10 +102,35 @@ public class CriarOsCorretivaUseCase
         if (veiculo is null) throw new OficinaException("Veículo não encontrado.", 404);
 
         var os = OrdemServico.CriarCorretiva(veiculoId);
+        os.AvancarParaFluxoInicial();
 
         await _oficina.AdicionarOrdemServico(os, ct);
         await _oficina.Salvar(ct);
 
         return os.Id;
+    }
+}
+
+
+public class CriarOrdemServicoUseCase
+{
+    private readonly CriarOsPreventivaUseCase _preventiva;
+    private readonly CriarOsCorretivaUseCase _corretiva;
+
+    public CriarOrdemServicoUseCase(CriarOsPreventivaUseCase preventiva, CriarOsCorretivaUseCase corretiva)
+    {
+        _preventiva = preventiva;
+        _corretiva = corretiva;
+    }
+
+    public async Task<Guid> Executar(Guid veiculoId, TipoManutencao tipoManutencao, IReadOnlyList<Guid>? servicoIds, CancellationToken ct)
+    {
+        if (tipoManutencao == TipoManutencao.Preventiva)
+        {
+            var (osId, _) = await _preventiva.Executar(veiculoId, servicoIds ?? [], ct);
+            return osId;
+        }
+
+        return await _corretiva.Executar(veiculoId, ct);
     }
 }

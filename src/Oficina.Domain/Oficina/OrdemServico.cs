@@ -16,10 +16,7 @@ public class OrdemServico : AgregadoRaiz
 
         VeiculoId = veiculoId;
         TipoManutencao = tipo;
-        Status = tipo == TipoManutencao.Corretiva
-            ? StatusOrdemServico.EmDiagnostico
-            : StatusOrdemServico.AguardandoAprovacao;
-
+        Status = StatusOrdemServico.Recebida;
         DataCriacao = DateTimeOffset.UtcNow;
     }
 
@@ -48,6 +45,56 @@ public class OrdemServico : AgregadoRaiz
 
     public static OrdemServico CriarCorretiva(Guid veiculoId)
         => new OrdemServico(veiculoId, TipoManutencao.Corretiva);
+
+    public void AvancarParaFluxoInicial()
+    {
+        if (Status != StatusOrdemServico.Recebida)
+            throw new InvalidOperationException("Fluxo inicial só pode ser aplicado para OS recebida.");
+
+        Status = TipoManutencao == TipoManutencao.Corretiva
+            ? StatusOrdemServico.EmDiagnostico
+            : StatusOrdemServico.AguardandoAprovacao;
+    }
+
+    public void AtualizarStatusExterno(StatusOrdemServico novoStatus)
+    {
+        if (Status == StatusOrdemServico.Recebida)
+        {
+            if (novoStatus != StatusOrdemServico.EmDiagnostico && novoStatus != StatusOrdemServico.AguardandoAprovacao)
+                throw new InvalidOperationException("OS recebida só pode avançar para diagnóstico ou aguardando aprovação.");
+
+            Status = novoStatus;
+            return;
+        }
+
+        if (Status == StatusOrdemServico.EmDiagnostico && novoStatus == StatusOrdemServico.AguardandoAprovacao)
+        {
+            Status = novoStatus;
+            return;
+        }
+
+        if (Status == StatusOrdemServico.AguardandoAprovacao && novoStatus == StatusOrdemServico.EmExecucao)
+        {
+            Status = novoStatus;
+            DataInicioExecucao ??= DateTimeOffset.UtcNow;
+            return;
+        }
+
+        if (Status == StatusOrdemServico.EmExecucao && novoStatus == StatusOrdemServico.Finalizada)
+        {
+            Status = novoStatus;
+            DataFimExecucao ??= DateTimeOffset.UtcNow;
+            return;
+        }
+
+        if (Status == StatusOrdemServico.Finalizada && novoStatus == StatusOrdemServico.Entregue)
+        {
+            Status = novoStatus;
+            return;
+        }
+
+        throw new InvalidOperationException($"Transição de status inválida: {Status} -> {novoStatus}.");
+    }
 
     public void RegistrarDiagnostico(string descricao, IEnumerable<Guid> servicoIds)
     {

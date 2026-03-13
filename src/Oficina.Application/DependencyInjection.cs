@@ -37,14 +37,18 @@ public static class DependencyInjection
         // Oficina
         services.AddScoped<CriarOsPreventivaUseCase>();
         services.AddScoped<CriarOsCorretivaUseCase>();
+        services.AddScoped<CriarOrdemServicoUseCase>();
         services.AddScoped<RegistrarDiagnosticoUseCase>();
         services.AddScoped<AprovarOrcamentoUseCase>();
         services.AddScoped<RecusarOrcamentoUseCase>();
         services.AddScoped<ObterOrdemServicoUseCase>();
+        services.AddScoped<ObterStatusOrdemServicoUseCase>();
         services.AddScoped<ListarOrdensServicoUseCase>();
+        services.AddScoped<AtualizarStatusExternoOrdemServicoUseCase>();
         services.AddScoped<FinalizarOrdemServicoUseCase>();
         services.AddScoped<EntregarOrdemServicoUseCase>();
         services.AddScoped<ObterOrcamentoUseCase>();
+        services.AddScoped<NotificarOrcamentoExternoUseCase>();
         services.AddScoped<RelatorioTempoMedioExecucaoUseCase>();
 
         return services;

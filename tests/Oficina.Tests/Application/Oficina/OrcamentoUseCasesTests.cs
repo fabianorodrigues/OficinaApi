@@ -1,6 +1,7 @@
 using Moq;
 using Oficina.Application.Abstractions.Notificacoes;
 using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.Shared;
 using Oficina.Application.UseCases.Oficina;
 using Oficina.Domain.Oficina;
 using Oficina.Domain.Oficina.Enums;
@@ -18,14 +19,11 @@ public class OrcamentoUseCasesTests
         var notificador = new Mock<INotificadorCliente>();
 
         var os = OrdemServico.CriarCorretiva(Guid.NewGuid());
-
-        await Assert.ThrowsAsync<ArgumentException>( () =>
-           Task.Run(() => os.RegistrarDiagnostico("Barulho na suspensão", Enumerable.Empty<Guid>())));
+        os.AvancarParaFluxoInicial();
+        os.RegistrarDiagnostico("Barulho na suspensão", new[] { Guid.NewGuid() });
 
         var orc = new Orcamento(os.Id, 50);
-        
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-          Task.Run(() => os.VincularOrcamento(orc.Id)));
+        os.VincularOrcamento(orc.Id);
 
         oficinaRepo.Setup(x => x.ObterOrcamento(orc.Id, It.IsAny<CancellationToken>())).ReturnsAsync(orc);
         oficinaRepo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
@@ -56,5 +54,18 @@ public class OrcamentoUseCasesTests
         Assert.Equal(orc.Id, dto.Id);
         Assert.Equal(orc.ValorTotal, dto.ValorTotal);
         Assert.Equal(orc.Status, dto.Status);
+    }
+
+    [Fact]
+    public async Task NotificarOrcamentoExterno_DeveLancarParaStatusInvalido()
+    {
+        var aprovar = new AprovarOrcamentoUseCase(Mock.Of<IOficinaRepository>(), Mock.Of<ICatalogoEstoqueRepository>());
+        var recusar = new RecusarOrcamentoUseCase(Mock.Of<IOficinaRepository>(), Mock.Of<INotificadorCliente>());
+        var useCase = new NotificarOrcamentoExternoUseCase(aprovar, recusar);
+
+        var ex = await Assert.ThrowsAsync<OficinaException>(() =>
+            useCase.Executar(Guid.NewGuid(), (StatusOrcamento)999, CancellationToken.None));
+
+        Assert.Equal(400, ex.StatusCode);
     }
 }

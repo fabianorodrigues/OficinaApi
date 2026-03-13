@@ -7,19 +7,19 @@ namespace Oficina.Tests.Domain;
 public class OrdemServicoTests
 {
     [Fact]
-    public void CriarPreventiva_DeveIniciarAguardandoAprovacao()
+    public void CriarPreventiva_DeveIniciarRecebida()
     {
         var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
-        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
+        Assert.Equal(StatusOrdemServico.Recebida, os.Status);
         Assert.Equal(TipoManutencao.Preventiva, os.TipoManutencao);
         Assert.Single(os.ItensServico);
     }
 
     [Fact]
-    public void CriarCorretiva_DeveIniciarEmDiagnostico()
+    public void CriarCorretiva_DeveIniciarRecebida()
     {
         var os = OrdemServico.CriarCorretiva(Guid.NewGuid());
-        Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status);
+        Assert.Equal(StatusOrdemServico.Recebida, os.Status);
         Assert.Equal(TipoManutencao.Corretiva, os.TipoManutencao);
     }
 
@@ -27,6 +27,7 @@ public class OrdemServicoTests
     public void RegistrarDiagnostico_DeveMoverParaAguardandoAprovacao()
     {
         var os = OrdemServico.CriarCorretiva(Guid.NewGuid());
+        os.AvancarParaFluxoInicial();
         os.RegistrarDiagnostico("Problema", new[] { Guid.NewGuid() });
 
         Assert.NotNull(os.Diagnostico);
@@ -37,6 +38,7 @@ public class OrdemServicoTests
     public void IniciarExecucao_SoComOrcamentoAprovado()
     {
         var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
+        os.AvancarParaFluxoInicial();
 
         var orc = new Orcamento(os.Id, 10);
         os.VincularOrcamento(orc.Id);
@@ -54,6 +56,7 @@ public class OrdemServicoTests
     public void Finalizar_AtualizaDataFim()
     {
         var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
+        os.AvancarParaFluxoInicial();
         var orc = new Orcamento(os.Id, 10);
         os.VincularOrcamento(orc.Id);
         orc.Aprovar();
@@ -68,6 +71,7 @@ public class OrdemServicoTests
     public void RecusaFinalizaSemExecucao()
     {
         var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
+        os.AvancarParaFluxoInicial();
         var orc = new Orcamento(os.Id, 10);
         os.VincularOrcamento(orc.Id);
 

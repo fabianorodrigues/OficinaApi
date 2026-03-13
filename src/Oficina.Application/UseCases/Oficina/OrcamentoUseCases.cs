@@ -89,3 +89,26 @@ public class ObterOrcamentoUseCase
     public async Task<Orcamento> Executar(Guid id, CancellationToken ct)
         => await _repo.ObterOrcamento(id, ct) ?? throw new OficinaException("Orçamento não encontrado.", 404);
 }
+
+
+public class NotificarOrcamentoExternoUseCase
+{
+    private readonly AprovarOrcamentoUseCase _aprovar;
+    private readonly RecusarOrcamentoUseCase _recusar;
+
+    public NotificarOrcamentoExternoUseCase(AprovarOrcamentoUseCase aprovar, RecusarOrcamentoUseCase recusar)
+    {
+        _aprovar = aprovar;
+        _recusar = recusar;
+    }
+
+    public Task Executar(Guid orcamentoId, StatusOrcamento status, CancellationToken ct)
+    {
+        return status switch
+        {
+            StatusOrcamento.Aprovado => _aprovar.Executar(orcamentoId, ct),
+            StatusOrcamento.Recusado => _recusar.Executar(orcamentoId, ct),
+            _ => throw new OficinaException("Status da notificação inválido.", 400)
+        };
+    }
+}

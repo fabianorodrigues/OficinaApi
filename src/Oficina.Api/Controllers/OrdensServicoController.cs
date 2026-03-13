@@ -12,33 +12,49 @@ namespace Oficina.Api.Controllers;
 [Authorize]
 public class OrdensServicoController : ControllerBase
 {
+    private readonly CriarOrdemServicoUseCase _criar;
     private readonly CriarOsPreventivaUseCase _criarPreventiva;
     private readonly CriarOsCorretivaUseCase _criarCorretiva;
     private readonly RegistrarDiagnosticoUseCase _registrarDiagnostico;
     private readonly ObterOrdemServicoUseCase _obter;
+    private readonly ObterStatusOrdemServicoUseCase _obterStatus;
     private readonly ListarOrdensServicoUseCase _listar;
+    private readonly AtualizarStatusExternoOrdemServicoUseCase _atualizarStatusExterno;
     private readonly FinalizarOrdemServicoUseCase _finalizar;
     private readonly EntregarOrdemServicoUseCase _entregar;
     private readonly ICatalogoEstoqueRepository _catalogo;
 
     public OrdensServicoController(
+        CriarOrdemServicoUseCase criar,
         CriarOsPreventivaUseCase criarPreventiva,
         CriarOsCorretivaUseCase criarCorretiva,
         RegistrarDiagnosticoUseCase registrarDiagnostico,
         ObterOrdemServicoUseCase obter,
+        ObterStatusOrdemServicoUseCase obterStatus,
         ListarOrdensServicoUseCase listar,
+        AtualizarStatusExternoOrdemServicoUseCase atualizarStatusExterno,
         FinalizarOrdemServicoUseCase finalizar,
         EntregarOrdemServicoUseCase entregar,
         ICatalogoEstoqueRepository catalogo)
     {
+        _criar = criar;
         _criarPreventiva = criarPreventiva;
         _criarCorretiva = criarCorretiva;
         _registrarDiagnostico = registrarDiagnostico;
         _obter = obter;
+        _obterStatus = obterStatus;
         _listar = listar;
+        _atualizarStatusExterno = atualizarStatusExterno;
         _finalizar = finalizar;
         _entregar = entregar;
         _catalogo = catalogo;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Criar([FromBody] CriarOrdemServicoRequest req, CancellationToken ct)
+    {
+        var osId = await _criar.Executar(req.VeiculoId, req.TipoManutencao, req.ServicoIds, ct);
+        return CreatedAtAction(nameof(ObterPorId), new { id = osId }, new { id = osId });
     }
 
     [HttpPost("preventiva")]
@@ -60,6 +76,13 @@ public class OrdensServicoController : ControllerBase
     {
         var orcamentoId = await _registrarDiagnostico.Executar(id, req.Descricao, req.ServicoIds, ct);
         return Ok(new { orcamentoId });
+    }
+
+    [HttpPost("{id:guid}/atualizacoes-status")]
+    public async Task<IActionResult> AtualizarStatusExterno(Guid id, [FromBody] AtualizarStatusExternoOrdemServicoRequest req, CancellationToken ct)
+    {
+        await _atualizarStatusExterno.Executar(id, req.Status, ct);
+        return NoContent();
     }
 
     [HttpGet("{id:guid}")]
@@ -102,6 +125,13 @@ public class OrdensServicoController : ControllerBase
                 itensMaterial
             }
         });
+    }
+
+    [HttpGet("{id:guid}/status")]
+    public async Task<IActionResult> ObterStatus(Guid id, CancellationToken ct)
+    {
+        var status = await _obterStatus.Executar(id, ct);
+        return Ok(new { ordemServicoId = id, status = status.ToString() });
     }
 
     [HttpGet]
