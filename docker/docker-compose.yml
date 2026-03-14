@@ -6,7 +6,7 @@ services:
     container_name: sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "Your_password123"
+      MSSQL_SA_PASSWORD: ${MSSQL_DPASSWORD}
     ports:
       - "1433:1433"
     volumes:
@@ -15,7 +15,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P Your_password123 -Q 'SELECT 1' -C || exit 1"
+          "/opt/mssql-tools18/bin/sqlcmd -S localhost -U ${MSSQL_USER} -P ${MSSQL_DPASSWORD} -Q 'SELECT 1' -C || exit 1"
         ]
       interval: 10s
       timeout: 5s
@@ -29,15 +29,15 @@ services:
     environment:
       ASPNETCORE_URLS: "http://+:8080"
       ASPNETCORE_ENVIRONMENT: "Docker"
-      ConnectionStrings__DefaultConnection: >
-        Server=sqlserver,1433;
-        Database=OficinaDb;
-        User Id=sa;
-        Password=Your_password123;
+      ConnectionStrings__SqlServer: >
+        Server=sqlserver,${PORT_SQLSERVER};
+        Database=${MSSQL_DATABASE};
+        User Id=${MSSQL_USER};
+        Password=${MSSQL_DPASSWORD};
         TrustServerCertificate=True;
-      Jwt__Key: "CHANGE_ME_TO_A_LONG_RANDOM_SECRET_KEY_32+_CHARS"
-      Jwt__Issuer: "Oficina.Api"
-      Jwt__Audience: "Oficina.Api"
+      Jwt__Key: ${JWT_KEY} 
+      Jwt__Issuer: ${NOME_API} 
+      Jwt__Audience: ${NOME_API}
       Jwt__ExpMinutes: "120"
     ports:
       - "8080:8080"
