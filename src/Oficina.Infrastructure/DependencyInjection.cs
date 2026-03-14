@@ -15,6 +15,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
         var cs = config.GetConnectionString("SqlServer");
+        Console.WriteLine($"ConnectionString usada: {cs}");
         services.AddDbContext<OficinaDbContext>(opt => opt.UseSqlServer(cs));
 
 
