@@ -28,6 +28,11 @@ namespace Oficina.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Clientes", (string)null);
@@ -93,6 +98,11 @@ namespace Oficina.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<decimal>("PrecoUnitario")
                         .HasColumnType("decimal(18,2)");
 
@@ -106,6 +116,11 @@ namespace Oficina.Infrastructure.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<decimal>("PrecoUnitario")
                         .HasColumnType("decimal(18,2)");
@@ -189,6 +204,31 @@ namespace Oficina.Infrastructure.Migrations
 
             modelBuilder.Entity("Oficina.Domain.Cadastro.Cliente", b =>
                 {
+                    b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.Contato", "Contato", b1 =>
+                        {
+                            b1.Property<Guid>("ClienteId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("Email")
+                                .IsRequired()
+                                .HasMaxLength(150)
+                                .HasColumnType("nvarchar(150)")
+                                .HasColumnName("ContatoEmail");
+
+                            b1.Property<string>("Telefone")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("nvarchar(20)")
+                                .HasColumnName("ContatoTelefone");
+
+                            b1.HasKey("ClienteId");
+
+                            b1.ToTable("Clientes");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ClienteId");
+                        });
+
                     b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.DocumentoCpfCnpj", "Documento", b1 =>
                         {
                             b1.Property<Guid>("ClienteId")
@@ -211,12 +251,44 @@ namespace Oficina.Infrastructure.Migrations
                                 .HasForeignKey("ClienteId");
                         });
 
+                    b.Navigation("Contato")
+                        .IsRequired();
+
                     b.Navigation("Documento")
                         .IsRequired();
                 });
 
             modelBuilder.Entity("Oficina.Domain.Cadastro.Veiculo", b =>
                 {
+                    b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.Modelo", "Modelo", b1 =>
+                        {
+                            b1.Property<Guid>("VeiculoId")
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<int>("Ano")
+                                .HasColumnType("int")
+                                .HasColumnName("ModeloAno");
+
+                            b1.Property<string>("Descricao")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("ModeloDescricao");
+
+                            b1.Property<string>("Marca")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("ModeloMarca");
+
+                            b1.HasKey("VeiculoId");
+
+                            b1.ToTable("Veiculos");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VeiculoId");
+                        });
+
                     b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.Placa", "Placa", b1 =>
                         {
                             b1.Property<Guid>("VeiculoId")
@@ -260,6 +332,9 @@ namespace Oficina.Infrastructure.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("VeiculoId");
                         });
+
+                    b.Navigation("Modelo")
+                        .IsRequired();
 
                     b.Navigation("Placa")
                         .IsRequired();
@@ -392,8 +467,7 @@ namespace Oficina.Infrastructure.Migrations
                 {
                     b.OwnsOne("Oficina.Domain.Oficina.ValueObjects.Diagnostico", "Diagnostico", b1 =>
                         {
-                            b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
+                            b1.Property<Guid>("OrdemServicoId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<DateTimeOffset>("DataRegistro")
@@ -404,13 +478,7 @@ namespace Oficina.Infrastructure.Migrations
                                 .HasMaxLength(2000)
                                 .HasColumnType("nvarchar(2000)");
 
-                            b1.Property<Guid>("OrdemServicoId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("OrdemServicoId")
-                                .IsUnique();
+                            b1.HasKey("OrdemServicoId");
 
                             b1.ToTable("Diagnosticos", (string)null);
 

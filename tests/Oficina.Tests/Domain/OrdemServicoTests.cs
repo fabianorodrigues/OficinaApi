@@ -31,7 +31,6 @@ public class OrdemServicoTests
 
         Assert.NotNull(os.Diagnostico);
         Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
-        Assert.Single(os.ItensServico);
     }
 
     [Fact]

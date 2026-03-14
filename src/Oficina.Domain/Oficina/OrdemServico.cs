@@ -62,9 +62,6 @@ public class OrdemServico : AgregadoRaiz
         var lista = servicoIds?.Where(x => x != Guid.Empty).Distinct().ToList() ?? [];
         if (lista.Count == 0) throw new ArgumentException("Diagnóstico exige ao menos 1 serviço identificado.");
 
-        _itensServico.Clear();
-        foreach (var id in lista) _itensServico.Add(new ItemServicoOs(id));
-
         Status = StatusOrdemServico.AguardandoAprovacao;
     }
 
@@ -81,7 +78,7 @@ public class OrdemServico : AgregadoRaiz
     public void IniciarExecucao(Orcamento orcamento)
     {
         if (orcamento is null) throw new ArgumentNullException(nameof(orcamento));
-        if (OrcamentoId is null || OrcamentoId != orcamento.Id)
+        if (orcamento.OrdemServicoId != Id)
             throw new InvalidOperationException("Orçamento não corresponde à OS.");
 
         if (orcamento.Status != StatusOrcamento.Aprovado)
@@ -114,7 +111,7 @@ public class OrdemServico : AgregadoRaiz
     public void FinalizarPorRecusaOrcamento(Orcamento orcamento)
     {
         if (orcamento is null) throw new ArgumentNullException(nameof(orcamento));
-        if (OrcamentoId is null || OrcamentoId != orcamento.Id)
+        if (orcamento.OrdemServicoId != Id)
             throw new InvalidOperationException("Orçamento não corresponde à OS.");
 
         if (orcamento.Status != StatusOrcamento.Recusado)

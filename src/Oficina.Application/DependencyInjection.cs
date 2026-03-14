@@ -14,7 +14,9 @@ public static class DependencyInjection
 
         // Cadastro
         services.AddScoped<CadastrarClienteUseCase>();
+        services.AddScoped<AtualizarClienteUseCase>();
         services.AddScoped<CadastrarVeiculoUseCase>();
+        services.AddScoped<AtualizarVeiculoUseCase>();
         services.AddScoped<ObterClienteUseCase>();
         services.AddScoped<ObterVeiculoUseCase>();
         services.AddScoped<ListarVeiculosPorClienteUseCase>();
@@ -23,8 +25,10 @@ public static class DependencyInjection
         services.AddScoped<CadastrarServicoUseCase>();
         services.AddScoped<CadastrarPecaUseCase>();
         services.AddScoped<ObterPecaUseCase>();
+        services.AddScoped<AtualizarPecaUseCase>();
         services.AddScoped<CadastrarInsumoUseCase>();
         services.AddScoped<ObterInsumoUseCase>();
+        services.AddScoped<AtualizarInsumoUseCase>();
         services.AddScoped<ObterEstoquePecaUseCase>();
         services.AddScoped<ObterEstoqueInsumoUseCase>();
         services.AddScoped<AjustarEstoquePecaUseCase>();

@@ -8,5 +8,9 @@ public class CadastrarInsumoRequestValidator : AbstractValidator<CadastrarInsumo
     public CadastrarInsumoRequestValidator()
     {
         RuleFor(x => x.PrecoUnitario).GreaterThanOrEqualTo(0);
+
+        RuleFor(x => x.Descricao)
+            .NotEmpty()
+            .MaximumLength(200);
     }
 }
