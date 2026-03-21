@@ -27,16 +27,7 @@ public class OrcamentosController : ControllerBase
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
     {
         var o = await _obter.Executar(id, ct);
-        return Ok(new
-        {
-            o.Id,
-            o.OrdemServicoId,
-            o.Status,
-            o.ValorTotal,
-            o.DataCriacao,
-            itensServico = o.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
-            itensMaterial = o.ItensMaterial.Select(x => new { tipo = x.Tipo, x.MaterialId, x.Quantidade, x.ValorUnitario, descricao = x.Descricao })
-        });
+        return Ok(o);
     }
 
     [HttpPost("{id:guid}/aprovar")]

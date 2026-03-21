@@ -1,5 +1,6 @@
 using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.Shared;
+using Oficina.Application.DTO.Oficina;
 using Oficina.Domain.Oficina;
 using Oficina.Domain.Oficina.Enums;
 
@@ -23,7 +24,7 @@ public class ListarOrdensServicoUseCase
     private readonly IOficinaRepository _repo;
     public ListarOrdensServicoUseCase(IOficinaRepository repo) => _repo = repo;
 
-    public async Task<IReadOnlyList<OrdemServico>> Executar(CancellationToken ct)
+    public async Task<IReadOnlyList<OrdemServicoListaItemResponse>> Executar(CancellationToken ct)
     {
         var ordens = await _repo.ListarOrdensServico(ct);
 
@@ -32,6 +33,14 @@ public class ListarOrdensServicoUseCase
             .OrderBy(os => ObterPrioridadeStatus(os.Status))
             .ThenBy(os => os.DataCriacao)
             .ThenBy(os => os.Id)
+            .Select(os => new OrdemServicoListaItemResponse
+            {
+                Id = os.Id,
+                VeiculoId = os.VeiculoId,
+                TipoManutencao = os.TipoManutencao.ToString(),
+                Status = os.Status.ToString(),
+                DataCriacao = os.DataCriacao
+            })
             .ToList();
     }
 

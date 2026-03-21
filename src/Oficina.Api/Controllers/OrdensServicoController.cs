@@ -56,15 +56,15 @@ public class OrdensServicoController : ControllerBase
     [HttpPost("preventiva")]
     public async Task<IActionResult> CriarPreventiva([FromBody] CriarOsPreventivaRequest req, CancellationToken ct)
     {
-        var (osId, orcamentoId) = await _criarPreventiva.Executar(req.VeiculoId, req.ServicoIds, ct);
-        return CreatedAtAction(nameof(ObterPorId), new { id = osId }, new { id = osId, orcamentoId });
+        var response = await _criarPreventiva.Executar(req.VeiculoId, req.ServicoIds, ct);
+        return CreatedAtAction(nameof(ObterPorId), new { id = response.Id }, response);
     }
 
     [HttpPost("corretiva")]
     public async Task<IActionResult> CriarCorretiva([FromBody] CriarOsCorretivaRequest req, CancellationToken ct)
     {
-        var osId = await _criarCorretiva.Executar(req.VeiculoId, ct);
-        return CreatedAtAction(nameof(ObterPorId), new { id = osId }, new { id = osId });
+        var response = await _criarCorretiva.Executar(req.VeiculoId, ct);
+        return CreatedAtAction(nameof(ObterPorId), new { id = response.Id }, response);
     }
 
 
@@ -78,8 +78,8 @@ public class OrdensServicoController : ControllerBase
     [HttpPost("{id:guid}/diagnosticos")]
     public async Task<IActionResult> RegistrarDiagnostico(Guid id, [FromBody] RegistrarDiagnosticoRequest req, CancellationToken ct)
     {
-        var orcamentoId = await _registrarDiagnostico.Executar(id, req.Descricao, req.ServicoIds, ct);
-        return Ok(new { orcamentoId });
+        var response = await _registrarDiagnostico.Executar(id, req.Descricao, req.ServicoIds, ct);
+        return Ok(response);
     }
 
 
@@ -95,52 +95,14 @@ public class OrdensServicoController : ControllerBase
     {
         var detalhe = await _obter.Executar(id, ct);
 
-        return Ok(new
-        {
-            detalhe.Id,
-            detalhe.VeiculoId,
-            detalhe.TipoManutencao,
-            detalhe.Status,
-            detalhe.OrigemUltimaAtualizacaoStatus,
-            detalhe.DataUltimaAtualizacaoStatus,
-            detalhe.DataCriacao,
-            detalhe.DataInicioExecucao,
-            detalhe.DataFimExecucao,
-            diagnostico = detalhe.Diagnostico is null
-                ? null
-                : new { detalhe.Diagnostico.Descricao, detalhe.Diagnostico.DataRegistro },
-            orcamento = detalhe.Orcamento is null
-                ? null
-                : new
-                {
-                    detalhe.Orcamento.Id,
-                    status = detalhe.Orcamento.Status,
-                    detalhe.Orcamento.ValorTotal,
-                    itensServico = detalhe.Orcamento.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
-                    itensMaterial = detalhe.Orcamento.ItensMaterial.Select(x => new
-                    {
-                        tipo = x.Tipo,
-                        x.MaterialId,
-                        x.Quantidade,
-                        x.ValorUnitario,
-                        descricao = x.Descricao
-                    })
-                }
-        });
+        return Ok(detalhe);
     }
 
     [HttpGet]
     public async Task<IActionResult> Listar(CancellationToken ct)
     {
         var lista = await _listar.Executar(ct);
-        return Ok(lista.Select(os => new
-        {
-            os.Id,
-            os.VeiculoId,
-            tipoManutencao = os.TipoManutencao.ToString(),
-            status = os.Status.ToString(),
-            os.DataCriacao
-        }));
+        return Ok(lista);
     }
 
     [HttpPost("{id:guid}/finalizar")]
