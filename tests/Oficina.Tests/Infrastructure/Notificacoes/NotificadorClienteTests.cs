@@ -34,7 +34,7 @@ public class NotificadorClienteTests
         os.VincularOrcamento(orcamento.Id);
 
         var cliente = new Cliente(
-            new DocumentoCpfCnpj("12345678901"),
+            new DocumentoCpfCnpj("52998224725"),
             "João Cliente",
             new Contato("cliente@teste.com", "11999999999"));
         var veiculo = new Veiculo(
@@ -86,7 +86,7 @@ public class NotificadorClienteTests
         os.VincularOrcamento(orcamento.Id);
 
         var cliente = new Cliente(
-            new DocumentoCpfCnpj("12345678901"),
+            new DocumentoCpfCnpj("52998224725"),
             "João Cliente",
             new Contato("cliente@teste.com", "11999999999"));
         var veiculo = new Veiculo(

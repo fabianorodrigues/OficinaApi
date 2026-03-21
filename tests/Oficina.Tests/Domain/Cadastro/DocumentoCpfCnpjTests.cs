@@ -18,14 +18,18 @@ public class DocumentoCpfCnpjTests
 
     [Theory]
     [InlineData("123.456.789-09")]
+    [InlineData("529.982.247-25")]
     [InlineData("11444777000161")]
+    [InlineData("04.252.011/0001-10")]
     public void Deve_aceitar_documentos_validos(string input)
         => Assert.Equal(new string(input.Where(char.IsDigit).ToArray()), new DocumentoCpfCnpj(input).Valor);
 
     [Theory]
     [InlineData("123.456.789-00")]
+    [InlineData("529.982.247-24")]
     [InlineData("111.111.111-11")]
     [InlineData("11.444.777/0001-62")]
+    [InlineData("04.252.011/0001-11")]
     [InlineData("00.000.000/0000-00")]
     [InlineData("")]
     [InlineData("   ")]
