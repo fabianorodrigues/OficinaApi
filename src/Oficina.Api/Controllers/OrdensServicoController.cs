@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.DTO.Oficina;
 using Oficina.Application.UseCases.Oficina;
-using Oficina.Domain.Oficina.Enums;
 
 namespace Oficina.Api.Controllers;
 
@@ -12,33 +10,47 @@ namespace Oficina.Api.Controllers;
 [Authorize]
 public class OrdensServicoController : ControllerBase
 {
+    private readonly AbrirOrdemServicoUseCase _abrirOrdemServico;
     private readonly CriarOsPreventivaUseCase _criarPreventiva;
     private readonly CriarOsCorretivaUseCase _criarCorretiva;
     private readonly RegistrarDiagnosticoUseCase _registrarDiagnostico;
-    private readonly ObterOrdemServicoUseCase _obter;
+    private readonly ClassificarOrdemServicoUseCase _classificar;
+    private readonly ObterStatusOrdemServicoUseCase _obterStatus;
+    private readonly ObterOrdemServicoDetalhadaUseCase _obter;
     private readonly ListarOrdensServicoUseCase _listar;
     private readonly FinalizarOrdemServicoUseCase _finalizar;
     private readonly EntregarOrdemServicoUseCase _entregar;
-    private readonly ICatalogoEstoqueRepository _catalogo;
 
     public OrdensServicoController(
+        AbrirOrdemServicoUseCase abrirOrdemServico,
         CriarOsPreventivaUseCase criarPreventiva,
         CriarOsCorretivaUseCase criarCorretiva,
         RegistrarDiagnosticoUseCase registrarDiagnostico,
-        ObterOrdemServicoUseCase obter,
+        ClassificarOrdemServicoUseCase classificar,
+        ObterStatusOrdemServicoUseCase obterStatus,
+        ObterOrdemServicoDetalhadaUseCase obter,
         ListarOrdensServicoUseCase listar,
         FinalizarOrdemServicoUseCase finalizar,
-        EntregarOrdemServicoUseCase entregar,
-        ICatalogoEstoqueRepository catalogo)
+        EntregarOrdemServicoUseCase entregar)
     {
+        _abrirOrdemServico = abrirOrdemServico;
         _criarPreventiva = criarPreventiva;
         _criarCorretiva = criarCorretiva;
         _registrarDiagnostico = registrarDiagnostico;
+        _classificar = classificar;
+        _obterStatus = obterStatus;
         _obter = obter;
         _listar = listar;
         _finalizar = finalizar;
         _entregar = entregar;
-        _catalogo = catalogo;
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Abrir([FromBody] AbrirOrdemServicoRequest req, CancellationToken ct)
+    {
+        var resultado = await _abrirOrdemServico.Executar(req, ct);
+        return CreatedAtAction(nameof(ObterPorId), new { id = resultado.Id }, resultado);
     }
 
     [HttpPost("preventiva")]
@@ -55,6 +67,14 @@ public class OrdensServicoController : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = osId }, new { id = osId });
     }
 
+
+    [HttpPost("{id:guid}/classificar")]
+    public async Task<IActionResult> Classificar(Guid id, [FromBody] ClassificarOrdemServicoRequest req, CancellationToken ct)
+    {
+        await _classificar.Executar(id, req.TipoManutencao, ct);
+        return NoContent();
+    }
+
     [HttpPost("{id:guid}/diagnosticos")]
     public async Task<IActionResult> RegistrarDiagnostico(Guid id, [FromBody] RegistrarDiagnosticoRequest req, CancellationToken ct)
     {
@@ -62,45 +82,50 @@ public class OrdensServicoController : ControllerBase
         return Ok(new { orcamentoId });
     }
 
+
+    [HttpGet("{id:guid}/status")]
+    public async Task<IActionResult> ObterStatus(Guid id, CancellationToken ct)
+    {
+        var status = await _obterStatus.Executar(id, ct);
+        return Ok(status);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
     {
-        var (os, orcamento) = await _obter.Executar(id, ct);
-
-        List<object>? itensMaterial = null;
-        if (orcamento is not null)
-        {
-            itensMaterial = new List<object>();
-            foreach (var x in orcamento.ItensMaterial)
-            {
-                string? descricao = null;
-                if (x.Tipo == TipoMaterial.Peca)
-                    descricao = (await _catalogo.ObterPeca(x.MaterialId, ct))?.Descricao;
-                else
-                    descricao = (await _catalogo.ObterInsumo(x.MaterialId, ct))?.Descricao;
-
-                itensMaterial.Add(new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario, descricao });
-            }
-        }
+        var detalhe = await _obter.Executar(id, ct);
 
         return Ok(new
         {
-            os.Id,
-            os.VeiculoId,
-            tipoManutencao = os.TipoManutencao.ToString(),
-            status = os.Status.ToString(),
-            os.DataCriacao,
-            os.DataInicioExecucao,
-            os.DataFimExecucao,
-            diagnostico = os.Diagnostico is null ? null : new { os.Diagnostico.Descricao, os.Diagnostico.DataRegistro },
-            orcamento = orcamento is null ? null : new
-            {
-                orcamento.Id,
-                status = orcamento.Status.ToString(),
-                orcamento.ValorTotal,
-                itensServico = orcamento.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
-                itensMaterial
-            }
+            detalhe.Id,
+            detalhe.VeiculoId,
+            detalhe.TipoManutencao,
+            detalhe.Status,
+            detalhe.OrigemUltimaAtualizacaoStatus,
+            detalhe.DataUltimaAtualizacaoStatus,
+            detalhe.DataCriacao,
+            detalhe.DataInicioExecucao,
+            detalhe.DataFimExecucao,
+            diagnostico = detalhe.Diagnostico is null
+                ? null
+                : new { detalhe.Diagnostico.Descricao, detalhe.Diagnostico.DataRegistro },
+            orcamento = detalhe.Orcamento is null
+                ? null
+                : new
+                {
+                    detalhe.Orcamento.Id,
+                    status = detalhe.Orcamento.Status,
+                    detalhe.Orcamento.ValorTotal,
+                    itensServico = detalhe.Orcamento.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
+                    itensMaterial = detalhe.Orcamento.ItensMaterial.Select(x => new
+                    {
+                        tipo = x.Tipo,
+                        x.MaterialId,
+                        x.Quantidade,
+                        x.ValorUnitario,
+                        descricao = x.Descricao
+                    })
+                }
         });
     }
 
