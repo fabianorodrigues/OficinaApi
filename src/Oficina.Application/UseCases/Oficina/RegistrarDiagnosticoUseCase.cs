@@ -1,4 +1,5 @@
 using Oficina.Application.Shared;
+using Oficina.Application.Common;
 using Oficina.Domain.Oficina.Enums;
 using Oficina.Domain.Oficina;
 using Oficina.Application.Abstractions.Notificacoes;
@@ -8,6 +9,7 @@ namespace Oficina.Application.UseCases.Oficina;
 
 public class RegistrarDiagnosticoUseCase
 {
+    private static readonly TimeSpan PrazoExpiracaoAcaoExterna = TimeSpan.FromDays(7);
     private readonly IOficinaRepository _oficina;
     private readonly ICatalogoEstoqueRepository _catalogo;
     private readonly INotificadorCliente _notificador;
@@ -31,6 +33,9 @@ public class RegistrarDiagnosticoUseCase
         await _oficina.Salvar(ct);
 
         var orcamento = await GerarOrcamento(os.Id, servicoIds, ct);
+        orcamento.DefinirTokenAcaoExterna(
+            TokenAcaoExternaGenerator.Gerar(),
+            DateTimeOffset.UtcNow.Add(PrazoExpiracaoAcaoExterna));
         os.VincularOrcamento(orcamento.Id);
 
         await _oficina.AdicionarOrcamento(orcamento, ct);

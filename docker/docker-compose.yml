@@ -1,4 +1,10 @@
 services:
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    ports:
+      - "5001:80"
+      - "2525:25"
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -35,9 +41,16 @@ services:
       Jwt__Issuer: ${NOME_API} 
       Jwt__Audience: ${NOME_API}
       Jwt__ExpMinutes: "120"
+      EmailSettings__SmtpHost: "smtp4dev"
+      EmailSettings__SmtpPort: "25"
+      EmailSettings__EnableSsl: "false"
+      EmailSettings__From: "no-reply@oficina.local"
+      EmailSettings__BaseUrl: "http://localhost:8080"
     ports:
       - "8080:8080"
     depends_on:
+      smtp4dev:
+        condition: service_started
       sqlserver:
         condition: service_healthy
 

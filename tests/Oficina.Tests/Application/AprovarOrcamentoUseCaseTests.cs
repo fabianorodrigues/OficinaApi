@@ -34,6 +34,7 @@ public class AprovarOrcamentoUseCaseTests
 
         Assert.Equal(StatusOrcamento.Aprovado, orc.Status);
         Assert.Equal(StatusOrdemServico.EmExecucao, os.Status);
+        Assert.Equal(OrigemAtualizacaoStatusOs.Interna, os.OrigemUltimaAtualizacaoStatus);
 
         oficinaRepo.Verify(x => x.Salvar(It.IsAny<CancellationToken>()), Times.Once);        
     }
