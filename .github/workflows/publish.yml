@@ -5,17 +5,25 @@ on:
     branches: [main, developer, feat/jaque]
 
 jobs:
-    job1-hello:
+    job1:
+        name: Executando Job 1
         runs-on: ubuntu-latest
         steps:
-        - name: Imprimir mensagem
-          run: echo "Olá, Mundo"
-    job1-goodbye:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Step 1 - Sequencia de instruções
-          run: |
-            echo "Uma nova instrução"
-            ls            
-        - name: Step 2 - Imprimir mensagem
-          run: echo "Até logo!"
+        - name: Step 1
+          uses: actions/checkout@v4
+
+        - name: Docker Login
+          uses: docker/login-action@v4.0.0
+          with:
+            username: jaquelineramosit
+            password: ${{ secrets.DOCKERHUB_PA_SECRET}}
+            
+        - name: Build and push Docker images
+          uses: docker/build-push-action@v7.0.0
+          with:
+            context: .
+            file: ./docker/Dockerfile
+            tags: |
+              jaquelineramosit/oficina-api:latest
+              jaquelineramosit/oficina-api:${{ github.sha }}
+            push: true
