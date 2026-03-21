@@ -179,6 +179,18 @@ Validações do endpoint externo:
    - `GET /api/ordens-servico/{osId}/status`
 7. Confirme `OrigemUltimaAtualizacaoStatus = Externa`.
 
+### Checklist rápido de demonstração (ponta a ponta)
+
+- [ ] Criar OS preventiva (`POST /api/ordens-servico/preventiva`) e guardar `orcamentoId` + `osId`.
+- [ ] Confirmar recebimento do e-mail no smtp4dev (`http://localhost:5001`).
+- [ ] Validar que o HTML do e-mail contém ambos os links:
+  - `/api/orcamentos/acoes-externas/aprovar?token=...`
+  - `/api/orcamentos/acoes-externas/recusar?token=...`
+- [ ] Clicar no link **Aprovar** ou **Recusar** no e-mail.
+- [ ] Conferir status do orçamento (`GET /api/orcamentos/{orcamentoId}`).
+- [ ] Conferir status da OS (`GET /api/ordens-servico/{osId}/status`) e origem `Externa`.
+- [ ] Reabrir o mesmo link para validar idempotência funcional (`409 acao_ja_processada`).
+
 ### Local x Docker
 
 - **API fora de Docker**:
