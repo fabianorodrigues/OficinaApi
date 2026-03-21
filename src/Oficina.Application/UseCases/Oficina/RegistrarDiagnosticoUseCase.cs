@@ -1,5 +1,6 @@
 using Oficina.Application.Shared;
 using Oficina.Application.Common;
+using Oficina.Application.DTO.Oficina;
 using Oficina.Domain.Oficina.Enums;
 using Oficina.Domain.Oficina;
 using Oficina.Application.Abstractions.Notificacoes;
@@ -24,7 +25,7 @@ public class RegistrarDiagnosticoUseCase
         _notificador = notificador;
     }
 
-    public async Task<Guid> Executar(Guid ordemServicoId, string descricao, IReadOnlyList<Guid> servicoIds, CancellationToken ct)
+    public async Task<RegistrarDiagnosticoResponse> Executar(Guid ordemServicoId, string descricao, IReadOnlyList<Guid> servicoIds, CancellationToken ct)
     {
         var os = await _oficina.ObterOrdemServico(ordemServicoId, ct)
                  ?? throw new OficinaException("Ordem de serviço não encontrada.", 404);
@@ -43,7 +44,10 @@ public class RegistrarDiagnosticoUseCase
 
         await _notificador.NotificarOrcamentoCriado(orcamento.Id, os.Id, ct);
 
-        return orcamento.Id;
+        return new RegistrarDiagnosticoResponse
+        {
+            OrcamentoId = orcamento.Id
+        };
     }
 
     private async Task<Orcamento> GerarOrcamento(Guid osId, IEnumerable<Guid> servicoIds, CancellationToken ct)

@@ -1,5 +1,6 @@
 using Oficina.Application.Shared;
 using Oficina.Application.Common;
+using Oficina.Application.DTO.Oficina;
 using Oficina.Domain.Oficina.Enums;
 using Oficina.Domain.Oficina;
 using Oficina.Application.Abstractions.Notificacoes;
@@ -27,7 +28,7 @@ public class CriarOsPreventivaUseCase
         _notificador = notificador;
     }
 
-    public async Task<(Guid osId, Guid orcamentoId)> Executar(Guid veiculoId, IReadOnlyList<Guid> servicoIds, CancellationToken ct)
+    public async Task<CriarOsPreventivaResponse> Executar(Guid veiculoId, IReadOnlyList<Guid> servicoIds, CancellationToken ct)
     {
         var veiculo = await _cadastro.ObterVeiculo(veiculoId, ct);
         if (veiculo is null) throw new OficinaException("Veículo não encontrado.", 404);
@@ -46,7 +47,11 @@ public class CriarOsPreventivaUseCase
 
         await _notificador.NotificarOrcamentoCriado(orcamento.Id, os.Id, ct);
 
-        return (os.Id, orcamento.Id);
+        return new CriarOsPreventivaResponse
+        {
+            Id = os.Id,
+            OrcamentoId = orcamento.Id
+        };
     }
 
     private async Task<Orcamento> GerarOrcamento(OrdemServico os, CancellationToken ct)
@@ -100,7 +105,7 @@ public class CriarOsCorretivaUseCase
         _oficina = oficina;
     }
 
-    public async Task<Guid> Executar(Guid veiculoId, CancellationToken ct)
+    public async Task<CriarOsCorretivaResponse> Executar(Guid veiculoId, CancellationToken ct)
     {
         var veiculo = await _cadastro.ObterVeiculo(veiculoId, ct);
         if (veiculo is null) throw new OficinaException("Veículo não encontrado.", 404);
@@ -110,6 +115,9 @@ public class CriarOsCorretivaUseCase
         await _oficina.AdicionarOrdemServico(os, ct);
         await _oficina.Salvar(ct);
 
-        return os.Id;
+        return new CriarOsCorretivaResponse
+        {
+            Id = os.Id
+        };
     }
 }

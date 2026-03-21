@@ -27,8 +27,8 @@ public class ListarOrdensServicoUseCaseTests
         var resultado = await useCase.Executar(CancellationToken.None);
 
         Assert.Equal(2, resultado.Count);
-        Assert.DoesNotContain(resultado, x => x.Status == StatusOrdemServico.Finalizada);
-        Assert.DoesNotContain(resultado, x => x.Status == StatusOrdemServico.Entregue);
+        Assert.DoesNotContain(resultado, x => x.Status == StatusOrdemServico.Finalizada.ToString());
+        Assert.DoesNotContain(resultado, x => x.Status == StatusOrdemServico.Entregue.ToString());
     }
 
     [Fact]
@@ -48,10 +48,10 @@ public class ListarOrdensServicoUseCaseTests
         var resultado = await useCase.Executar(CancellationToken.None);
 
         Assert.Collection(resultado,
-            os => Assert.Equal(StatusOrdemServico.EmExecucao, os.Status),
-            os => Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status),
-            os => Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status),
-            os => Assert.Equal(StatusOrdemServico.Recebida, os.Status));
+            os => Assert.Equal(StatusOrdemServico.EmExecucao.ToString(), os.Status),
+            os => Assert.Equal(StatusOrdemServico.AguardandoAprovacao.ToString(), os.Status),
+            os => Assert.Equal(StatusOrdemServico.EmDiagnostico.ToString(), os.Status),
+            os => Assert.Equal(StatusOrdemServico.Recebida.ToString(), os.Status));
     }
 
     [Fact]

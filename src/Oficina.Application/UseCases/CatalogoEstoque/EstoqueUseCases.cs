@@ -1,4 +1,5 @@
 using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.DTO.CatalogoEstoque;
 using Oficina.Application.Shared;
 
 namespace Oficina.Application.UseCases.CatalogoEstoque;
@@ -8,11 +9,20 @@ public class ObterEstoquePecaUseCase
     private readonly ICatalogoEstoqueRepository _repo;
     public ObterEstoquePecaUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
 
-    public async Task<int> Executar(Guid pecaId, CancellationToken ct)
+    public async Task<EstoquePecaResponse> Executar(Guid pecaId, CancellationToken ct)
     {
-        var estoque = await _repo.ObterEstoquePeca(pecaId, ct);
-        if (estoque is null) throw new OficinaException("Estoque da peça não encontrado.", 404);
-        return estoque.Quantidade;
+        var estoque = await _repo.ObterEstoquePeca(pecaId, ct)
+                      ?? throw new OficinaException("Estoque da peça não encontrado.", 404);
+
+        var peca = await _repo.ObterPeca(pecaId, ct)
+                   ?? throw new OficinaException("Peça não encontrada.", 404);
+
+        return new EstoquePecaResponse
+        {
+            PecaId = pecaId,
+            Descricao = peca.Descricao,
+            Quantidade = estoque.Quantidade
+        };
     }
 }
 
@@ -21,11 +31,20 @@ public class ObterEstoqueInsumoUseCase
     private readonly ICatalogoEstoqueRepository _repo;
     public ObterEstoqueInsumoUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
 
-    public async Task<int> Executar(Guid insumoId, CancellationToken ct)
+    public async Task<EstoqueInsumoResponse> Executar(Guid insumoId, CancellationToken ct)
     {
-        var estoque = await _repo.ObterEstoqueInsumo(insumoId, ct);
-        if (estoque is null) throw new OficinaException("Estoque do insumo não encontrado.", 404);
-        return estoque.Quantidade;
+        var estoque = await _repo.ObterEstoqueInsumo(insumoId, ct)
+                      ?? throw new OficinaException("Estoque do insumo não encontrado.", 404);
+
+        var insumo = await _repo.ObterInsumo(insumoId, ct)
+                     ?? throw new OficinaException("Insumo não encontrado.", 404);
+
+        return new EstoqueInsumoResponse
+        {
+            InsumoId = insumoId,
+            Descricao = insumo.Descricao,
+            Quantidade = estoque.Quantidade
+        };
     }
 }
 
