@@ -34,6 +34,7 @@ public class OrcamentoUseCasesTests
 
         Assert.Equal(StatusOrcamento.Recusado, orc.Status);
         Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
+        Assert.Equal(OrigemAtualizacaoStatusOs.Interna, os.OrigemUltimaAtualizacaoStatus);
 
         oficinaRepo.Verify(x => x.Salvar(It.IsAny<CancellationToken>()), Times.Once);
         notificador.Verify(x => x.NotificarOrcamentoRecusado(orc.Id, os.Id, It.IsAny<CancellationToken>()), Times.Once);

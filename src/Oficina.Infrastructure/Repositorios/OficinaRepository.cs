@@ -30,6 +30,12 @@ public class OficinaRepository : IOficinaRepository
               .Include(x => x.ItensMaterial)
               .FirstOrDefaultAsync(x => x.Id == id, ct);
 
+    public Task<Orcamento?> ObterOrcamentoPorTokenAcaoExterna(string token, CancellationToken ct)
+        => _db.Orcamentos
+              .Include(x => x.ItensServico)
+              .Include(x => x.ItensMaterial)
+              .FirstOrDefaultAsync(x => x.TokenAcaoExterna == token, ct);
+
     public Task<Orcamento?> ObterOrcamentoPorOs(Guid ordemServicoId, CancellationToken ct)
         => _db.Orcamentos
               .Include(x => x.ItensServico)

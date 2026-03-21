@@ -42,6 +42,7 @@ public static class DependencyInjection
         services.AddScoped<ClassificarOrdemServicoUseCase>();
         services.AddScoped<AprovarOrcamentoUseCase>();
         services.AddScoped<RecusarOrcamentoUseCase>();
+        services.AddScoped<ProcessarAcaoExternaOrcamentoUseCase>();
         services.AddScoped<ObterOrdemServicoUseCase>();
         services.AddScoped<ObterStatusOrdemServicoUseCase>();
         services.AddScoped<ObterOrdemServicoDetalhadaUseCase>();
