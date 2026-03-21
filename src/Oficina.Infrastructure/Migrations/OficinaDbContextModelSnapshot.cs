@@ -185,6 +185,12 @@ namespace Oficina.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DataInicioExecucao")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset>("DataUltimaAtualizacaoStatus")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("OrigemUltimaAtualizacaoStatus")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("OrcamentoId")
                         .HasColumnType("uniqueidentifier");
 

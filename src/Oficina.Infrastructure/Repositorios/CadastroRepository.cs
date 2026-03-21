@@ -16,6 +16,9 @@ public class CadastroRepository : ICadastroRepository
     public Task<bool> ExisteClientePorDocumento(string cpfCnpjNormalizado, CancellationToken ct)
         => _db.Clientes.AnyAsync(x => x.Documento.Valor == cpfCnpjNormalizado, ct);
 
+    public Task<Cliente?> ObterClientePorDocumento(string cpfCnpjNormalizado, CancellationToken ct)
+        => _db.Clientes.FirstOrDefaultAsync(x => x.Documento.Valor == cpfCnpjNormalizado, ct);
+
     public Task AdicionarCliente(Cliente cliente, CancellationToken ct)
         => _db.Clientes.AddAsync(cliente, ct).AsTask();
 
@@ -27,6 +30,9 @@ public class CadastroRepository : ICadastroRepository
 
     public Task<bool> ExisteVeiculoPorPlaca(string placaNormalizada, CancellationToken ct)
         => _db.Veiculos.AnyAsync(x => x.Placa.Valor == placaNormalizada, ct);
+
+    public Task<Veiculo?> ObterVeiculoPorPlaca(string placaNormalizada, CancellationToken ct)
+        => _db.Veiculos.FirstOrDefaultAsync(x => x.Placa.Valor == placaNormalizada, ct);
 
     public Task AdicionarVeiculo(Veiculo veiculo, CancellationToken ct)
         => _db.Veiculos.AddAsync(veiculo, ct).AsTask();
