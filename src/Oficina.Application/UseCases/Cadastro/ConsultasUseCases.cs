@@ -1,7 +1,6 @@
 using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.Shared;
 using Oficina.Domain.Cadastro;
-using Oficina.Domain.CatalogoEstoque;
 
 namespace Oficina.Application.UseCases.Cadastro;
 

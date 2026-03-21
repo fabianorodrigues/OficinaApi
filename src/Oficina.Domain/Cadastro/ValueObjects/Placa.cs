@@ -28,7 +28,7 @@ public sealed class Placa
         if (valorNormalizado.Length != 7)
             throw new ArgumentException("Placa deve ter 7 caracteres.");
 
-        if (!valorNormalizado.All(char.IsLetterOrDigit))
+        if (!valorNormalizado.Any(char.IsLetter) || !valorNormalizado.Any(char.IsNumber))
             throw new ArgumentException("Placa deve conter apenas letras e números.");
     }
 }

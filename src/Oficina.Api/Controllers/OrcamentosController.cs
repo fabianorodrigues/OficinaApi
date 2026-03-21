@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.UseCases.Oficina;
+using Oficina.Domain.Oficina.Enums;
 
 namespace Oficina.Api.Controllers;
 
@@ -12,21 +14,36 @@ public class OrcamentosController : ControllerBase
     private readonly ObterOrcamentoUseCase _obter;
     private readonly AprovarOrcamentoUseCase _aprovar;
     private readonly RecusarOrcamentoUseCase _recusar;
+    private readonly ICatalogoEstoqueRepository _catalogo;
 
     public OrcamentosController(
         ObterOrcamentoUseCase obter,
         AprovarOrcamentoUseCase aprovar,
-        RecusarOrcamentoUseCase recusar)
+        RecusarOrcamentoUseCase recusar,
+        ICatalogoEstoqueRepository catalogo)
     {
         _obter = obter;
         _aprovar = aprovar;
         _recusar = recusar;
+        _catalogo = catalogo;
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
     {
         var o = await _obter.Executar(id, ct);
+
+        var itensMaterial = new List<object>();
+        foreach (var x in o.ItensMaterial)
+        {
+            string? descricao = null;
+            if (x.Tipo == TipoMaterial.Peca)
+                descricao = (await _catalogo.ObterPeca(x.MaterialId, ct))?.Descricao;
+            else
+                descricao = (await _catalogo.ObterInsumo(x.MaterialId, ct))?.Descricao;
+
+            itensMaterial.Add(new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario, descricao });
+        }
         return Ok(new
         {
             o.Id,
@@ -35,7 +52,7 @@ public class OrcamentosController : ControllerBase
             o.ValorTotal,
             o.DataCriacao,
             itensServico = o.ItensServico.Select(x => new { x.ServicoId, x.ValorMaoDeObra }),
-            itensMaterial = o.ItensMaterial.Select(x => new { tipo = x.Tipo.ToString(), x.MaterialId, x.Quantidade, x.ValorUnitario })
+            itensMaterial
         });
     }
 

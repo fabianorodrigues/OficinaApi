@@ -43,5 +43,21 @@ public class VeiculoMap : IEntityTypeConfiguration<Veiculo>
             renavam.HasIndex(p => p.Valor).IsUnique();
         });
 
+        b.OwnsOne(x => x.Modelo, modelo =>
+        {
+            modelo.Property(p => p.Descricao)
+                .HasColumnName("ModeloDescricao")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelo.Property(p => p.Marca)
+                .HasColumnName("ModeloMarca")
+                .HasMaxLength(100)
+                .IsRequired();
+
+            modelo.Property(p => p.Ano)
+                .HasColumnName("ModeloAno")
+                .IsRequired();
+        });
     }
 }
