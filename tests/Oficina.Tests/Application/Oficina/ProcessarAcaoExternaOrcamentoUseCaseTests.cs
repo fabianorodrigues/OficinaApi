@@ -2,6 +2,7 @@ using Moq;
 using Oficina.Application.Abstractions.Notificacoes;
 using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.DTO.Oficina;
+using Oficina.Application.Shared;
 using Oficina.Application.UseCases.Oficina;
 using Oficina.Domain.Oficina;
 using Oficina.Domain.Oficina.Enums;
@@ -123,7 +124,7 @@ public class ProcessarAcaoExternaOrcamentoUseCaseTests
         var recusar = new RecusarOrcamentoUseCase(oficinaRepo.Object, notificador.Object);
         var useCase = new ProcessarAcaoExternaOrcamentoUseCase(oficinaRepo.Object, aprovar, recusar);
 
-        await Assert.ThrowsAsync<Oficina.Application.Shared.OficinaException>(() => useCase.Executar(
+        await Assert.ThrowsAsync<OficinaException>(() => useCase.Executar(
             new ProcessarAcaoExternaOrcamentoRequest { Token = "TOKENSEMOS", Acao = AcaoExternaOrcamento.Aprovar },
             CancellationToken.None));
     }

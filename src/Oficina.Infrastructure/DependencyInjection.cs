@@ -21,7 +21,18 @@ public static class DependencyInjection
         Console.WriteLine($"ConnectionString usada: {cs}");
         services.AddDbContext<OficinaDbContext>(opt => opt.UseSqlServer(cs));
 
-        services.Configure<EmailSettings>(config.GetSection("EmailSettings"));
+        services.Configure<EmailSettings>(opt =>
+        {
+            opt.SmtpHost = config["EmailSettings:SmtpHost"] ?? opt.SmtpHost;
+            opt.From = config["EmailSettings:From"] ?? opt.From;
+            opt.BaseUrl = config["EmailSettings:BaseUrl"] ?? opt.BaseUrl;
+
+            if (int.TryParse(config["EmailSettings:SmtpPort"], out var smtpPort))
+                opt.SmtpPort = smtpPort;
+
+            if (bool.TryParse(config["EmailSettings:EnableSsl"], out var enableSsl))
+                opt.EnableSsl = enableSsl;
+        });
 
         services.AddScoped<ICadastroRepository, CadastroRepository>();
         services.AddScoped<ICatalogoEstoqueRepository, CatalogoEstoqueRepository>();
