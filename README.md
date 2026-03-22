@@ -71,7 +71,7 @@ dotnet run --project src/Oficina.Api
 
 A integração externa de aprovação/recusa de orçamento usa token por link de e-mail.
 
-- Interface smtp4dev: `http://localhost:5001`
+- Interface smtp4dev: `http://localhost:5000`
 - SMTP local (API fora de container): `localhost:2525`
 - SMTP Docker (API em container): `smtp4dev:25`
 
