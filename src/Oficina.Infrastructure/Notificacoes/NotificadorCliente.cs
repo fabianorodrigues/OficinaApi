@@ -70,7 +70,7 @@ public class NotificadorCliente : INotificadorCliente
         var cliente = await _cadastro.ObterCliente(veiculo.ClienteId, ct);
         if (cliente?.Contato?.Email is null) return null;
 
-        var baseUrl = _emailSettings.BaseUrl.TrimEnd('/');
+        var baseUrl = _emailSettings.BaseUrlAprovaRecusaOrcamento.TrimEnd('/');
         var token = Uri.EscapeDataString(orcamento.TokenAcaoExterna);
         return (
             cliente.Contato.Email,

@@ -75,12 +75,13 @@ A integração externa de aprovação/recusa de orçamento usa token por link de
 - SMTP local (API fora de container): `localhost:2525`
 - SMTP Docker (API em container): `smtp4dev:25`
 
-Configurações de e-mail:
+Configurações para fluxo de aprovação e recusa de orçamento por e-mail no appsettings:
 - `EmailSettings:SmtpHost`
 - `EmailSettings:SmtpPort`
 - `EmailSettings:EnableSsl`
 - `EmailSettings:From`
-- `EmailSettings:BaseUrl`
+- `EmailSettings:BaseUrlSmtp`
+- `EmailSettings:BaseUrlAprovaRecusaOrcamento`
 
 ## 6) Fluxos principais
 

@@ -6,5 +6,6 @@ public class EmailSettings
     public int SmtpPort { get; set; } = 2525;
     public bool EnableSsl { get; set; }
     public string From { get; set; } = "oficina@localhost";
-    public string BaseUrl { get; set; } = "http://localhost:8080";
+    public string BaseUrlSmtp { get; set; } = "http://localhost:5000";
+    public string BaseUrlAprovaRecusaOrcamento { get; set; } = "http://localhost:8080";
 }

@@ -22,7 +22,8 @@ public class NotificadorClienteTests
         var emailSender = new Mock<IEmailSender>();
         var options = Options.Create(new EmailSettings
         {
-            BaseUrl = "http://localhost:8080",
+            BaseUrlSmtp = "http://localhost:5000",
+            BaseUrlAprovaRecusaOrcamento = "http://localhost:8080",
             From = "no-reply@oficina.local",
             SmtpHost = "smtp4dev",
             SmtpPort = 25
@@ -74,7 +75,8 @@ public class NotificadorClienteTests
         var emailSender = new Mock<IEmailSender>();
         var options = Options.Create(new EmailSettings
         {
-            BaseUrl = "http://localhost:8080/",
+            BaseUrlSmtp = "http://localhost:5000",
+            BaseUrlAprovaRecusaOrcamento = "http://localhost:8080",
             From = "no-reply@oficina.local",
             SmtpHost = "smtp4dev",
             SmtpPort = 25

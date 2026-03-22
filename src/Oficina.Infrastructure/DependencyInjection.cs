@@ -25,7 +25,8 @@ public static class DependencyInjection
         {
             opt.SmtpHost = config["EmailSettings:SmtpHost"] ?? opt.SmtpHost;
             opt.From = config["EmailSettings:From"] ?? opt.From;
-            opt.BaseUrl = config["EmailSettings:BaseUrl"] ?? opt.BaseUrl;
+            opt.BaseUrlSmtp = config["EmailSettings:BaseUrlSmtp"] ?? opt.BaseUrlSmtp;
+            opt.BaseUrlAprovaRecusaOrcamento = config["EmailSettings:BaseUrlAprovaRecusaOrcamento"] ?? opt.BaseUrlAprovaRecusaOrcamento;
 
             if (int.TryParse(config["EmailSettings:SmtpPort"], out var smtpPort))
                 opt.SmtpPort = smtpPort;
