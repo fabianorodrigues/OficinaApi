@@ -12,10 +12,12 @@ public class Cliente : AgregadoRaiz
         Nome = nome;
         Documento = documento ?? throw new ArgumentNullException(nameof(documento));
         Contato = contato;
+
     }
-    public string Nome { get; private set; }
+
+    public string Nome { get; private set; } = default!;
     public DocumentoCpfCnpj Documento { get; private set; } = default!;
-    public Contato Contato { get; private set; }
+    public Contato Contato { get; private set; } = default!;
 
     public void AlterarDocumento(DocumentoCpfCnpj documento)
     {

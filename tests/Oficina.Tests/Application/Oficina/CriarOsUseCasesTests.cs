@@ -47,8 +47,8 @@ public class CriarOsUseCasesTests
         var servico = new Servico(100);
         var peca = new Peca(80, "Filtro de óleo");
         var insumo = new Insumo(20, "Aditivo");
-        servico.DefinirPecas([new ServicoItemPeca(peca.Id, 1)]);
-        servico.DefinirInsumos([new ServicoItemInsumo(insumo.Id, 2)]);
+        servico.AdicionarPeca(peca.Id, 1);
+        servico.AdicionarInsumo(insumo.Id, 2);
 
         Orcamento? orcamentoAdicionado = null;
 
