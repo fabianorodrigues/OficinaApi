@@ -1,14 +1,29 @@
-using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Oficina.Infrastructure.Migrations
 {
-    public partial class AddOrcamentoAcaoExternaToken : Migration
+    /// <inheritdoc />
+    public partial class ImplementacoesFase2 : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<DateTimeOffset>(
+                name: "DataUltimaAtualizacaoStatus",
+                table: "OrdensServico",
+                type: "datetimeoffset",
+                nullable: false,
+                defaultValueSql: "SYSDATETIMEOFFSET()");
+
+            migrationBuilder.AddColumn<int>(
+                name: "OrigemUltimaAtualizacaoStatus",
+                table: "OrdensServico",
+                type: "int",
+                nullable: false,
+                defaultValue: 1);
+
             migrationBuilder.AddColumn<string>(
                 name: "TokenAcaoExterna",
                 table: "Orcamentos",
@@ -30,19 +45,10 @@ namespace Oficina.Infrastructure.Migrations
                 filter: "[TokenAcaoExterna] IS NOT NULL");
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_Orcamentos_TokenAcaoExterna",
-                table: "Orcamentos");
 
-            migrationBuilder.DropColumn(
-                name: "TokenAcaoExterna",
-                table: "Orcamentos");
-
-            migrationBuilder.DropColumn(
-                name: "TokenAcaoExternaExpiraEm",
-                table: "Orcamentos");
         }
     }
 }

@@ -12,8 +12,8 @@ using Oficina.Infrastructure.Persistencia;
 namespace Oficina.Infrastructure.Migrations
 {
     [DbContext(typeof(OficinaDbContext))]
-    [Migration("20260322001024_AlteracoesParaImplementacoesFase2")]
-    partial class AlteracoesParaImplementacoesFase2
+    [Migration("20260322032034_ImplementacoesFase2")]
+    partial class ImplementacoesFase2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
