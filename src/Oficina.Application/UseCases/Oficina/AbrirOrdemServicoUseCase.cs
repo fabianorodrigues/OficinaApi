@@ -1,4 +1,5 @@
 using Oficina.Application.Abstractions.Repositorios;
+using Oficina.Application.Common;
 using Oficina.Application.DTO.Oficina;
 using Oficina.Application.Shared;
 using Oficina.Domain.Cadastro;
@@ -9,6 +10,7 @@ namespace Oficina.Application.UseCases.Oficina;
 
 public class AbrirOrdemServicoUseCase
 {
+    private static readonly TimeSpan PrazoExpiracaoAcaoExterna = TimeSpan.FromDays(7);
     private readonly ICadastroRepository _cadastro;
     private readonly ICatalogoEstoqueRepository _catalogo;
     private readonly IOficinaRepository _oficina;
@@ -37,6 +39,9 @@ public class AbrirOrdemServicoUseCase
         var (total, itensServico, itensMaterial) = await CalcularTotal(req, ct);
 
         var orcamento = new Orcamento(os.Id, total);
+        orcamento.DefinirTokenAcaoExterna(
+           TokenAcaoExternaGenerator.Gerar(),
+           DateTimeOffset.UtcNow.Add(PrazoExpiracaoAcaoExterna));
         orcamento.DefinirItensServico(itensServico);
         orcamento.DefinirItensMaterial(itensMaterial);
 
