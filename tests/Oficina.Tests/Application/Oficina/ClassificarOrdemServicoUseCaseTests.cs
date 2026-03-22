@@ -53,6 +53,21 @@ public class ClassificarOrdemServicoUseCaseTests
             useCase.Executar(os.Id, "Preventiva", CancellationToken.None));
     }
 
+
+    [Fact]
+    public async Task ClassificarComTipoInvalido_DeveFalharCom400()
+    {
+        var repo = new Mock<IOficinaRepository>();
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+        repo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
+
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+
+        var ex = await Assert.ThrowsAsync<OficinaException>(() =>
+            useCase.Executar(os.Id, "TipoInexistente", CancellationToken.None));
+
+        Assert.Equal(400, ex.StatusHttp);
+    }
     [Fact]
     public async Task ClassificarOsInexistente_DeveFalharCom404()
     {
