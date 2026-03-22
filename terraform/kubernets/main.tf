@@ -1,15 +1,13 @@
 provider "kubernetes" {
-  config_path = "" # Vai usar KUBECONFIG do ambiente (GitHub Actions)
+  config_path = "" # Vai usar KUBECONFIG do ambiente
 }
 
-# Namespace
 resource "kubernetes_namespace" "oficina" {
   metadata {
     name = var.namespace_name
   }
 }
 
-# Deployment
 resource "kubernetes_deployment" "oficina_app" {
   metadata {
     name      = "oficina-app"
@@ -35,7 +33,7 @@ resource "kubernetes_deployment" "oficina_app" {
       spec {
         container {
           name  = "oficina-api"
-          image = "${var.docker_image_repo}:${var.docker_image_tag}" # tag dinâmica
+          image = "${var.docker_image_repo}:${var.docker_image_tag}"
           port {
             container_port = var.container_port
           }
@@ -45,7 +43,6 @@ resource "kubernetes_deployment" "oficina_app" {
   }
 }
 
-# Service LoadBalancer
 resource "kubernetes_service" "oficina_service" {
   metadata {
     name      = "oficina-service"

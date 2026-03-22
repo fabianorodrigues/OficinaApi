@@ -2,13 +2,14 @@ provider "aws" {
   region = var.region
 }
 
-# Módulo oficial para criar EKS com Node Group e VPC
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  cluster_name    = var.cluster_name
-  cluster_version = "1.27"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "19.16.0"
 
-  # Cria VPC, subnets e SG automaticamente
+  name    = var.cluster_name
+  version = "1.27"
+
+  # Criar VPC e subnets automaticamente
   vpc_id     = null
   subnet_ids = null
 
@@ -19,21 +20,20 @@ module "eks" {
       max_capacity     = var.max_capacity
       min_capacity     = var.min_capacity
       instance_type    = var.node_instance_type
+
+      additional_iam_policies = [
+        "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+        "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+        "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+      ]
     }
   }
 
-  # Políticas gerenciadas do AWS para o cluster e nodes
-  manage_aws_auth = true
-  cluster_iam_role_name = "eks-cluster-role"
-  node_iam_role_name    = "eks-node-role"
-
-  cluster_iam_role_policy_arns = [
+  # Políticas IAM adicionais do cluster
+  cluster_iam_role_additional_policies = [
     "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   ]
 
-  node_iam_role_policy_arns = [
-    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
-    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  ]
+  # Autorizações de autenticação
+  manage_aws_auth = true
 }
