@@ -143,6 +143,7 @@ Configurações de e-mail:
 | GET | `/api/relatorios/tempo-medio-execucao` | JWT |
 
 ## 8) Testes e cobertura
+![Coverage](./badges/badge_combined.svg)
 
 ### Rodar testes
 ```bash
@@ -156,11 +157,6 @@ dotnet test --collect:"XPlat Code Coverage"
 
 Saída de cobertura (formato Cobertura):
 - `tests/Oficina.Tests/TestResults/**/coverage.cobertura.xml`
-
-### Coverage no README
-![Coverage](./badges/badge_combined.svg)
-
-Badge versionado em: `badges/badge_combined.svg`.
 
 ## 9) Segurança
 
