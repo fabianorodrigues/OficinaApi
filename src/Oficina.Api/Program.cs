@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Oficina.Api.Middlewares;
 using Oficina.Application;
 using Oficina.Infrastructure;
+using Oficina.Infrastructure.Persistencia;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -58,6 +60,29 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+var runMigration = builder.Configuration.GetValue<bool>("RUN_MIGRATION");
+
+if (runMigration)
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var dbContext = services.GetRequiredService<OficinaDbContext>();
+            dbContext.Database.Migrate();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao executar migration: {ex.Message}");
+            throw;
+        }
+    }
+}
+
+
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
