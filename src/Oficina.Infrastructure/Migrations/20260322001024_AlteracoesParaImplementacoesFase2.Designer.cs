@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Oficina.Infrastructure.Persistencia;
 
@@ -11,9 +12,11 @@ using Oficina.Infrastructure.Persistencia;
 namespace Oficina.Infrastructure.Migrations
 {
     [DbContext(typeof(OficinaDbContext))]
-    partial class OficinaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260322001024_AlteracoesParaImplementacoesFase2")]
+    partial class AlteracoesParaImplementacoesFase2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
