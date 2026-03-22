@@ -1,4 +1,5 @@
 using Moq;
+using Oficina.Application.Abstractions.Notificacoes;
 using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.Shared;
 using Oficina.Application.UseCases.Oficina;
@@ -17,7 +18,9 @@ public class ClassificarOrdemServicoUseCaseTests
         var os = OrdemServico.CriarRecebida(Guid.NewGuid());
         repo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
 
-        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+        var notificador = new Mock<INotificadorCliente>();
+
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object, notificador.Object);
         await useCase.Executar(os.Id, "Preventiva", CancellationToken.None);
 
         Assert.Equal(TipoManutencao.Preventiva, os.TipoManutencao);
@@ -31,7 +34,8 @@ public class ClassificarOrdemServicoUseCaseTests
         var os = OrdemServico.CriarRecebida(Guid.NewGuid());
         repo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
 
-        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+        var notificador = new Mock<INotificadorCliente>();
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object, notificador.Object);
         await useCase.Executar(os.Id, "Corretiva", CancellationToken.None);
 
         Assert.Equal(TipoManutencao.Corretiva, os.TipoManutencao);
@@ -47,7 +51,8 @@ public class ClassificarOrdemServicoUseCaseTests
 
         repo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
 
-        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+        var notificador = new Mock<INotificadorCliente>();
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object, notificador.Object);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             useCase.Executar(os.Id, "Preventiva", CancellationToken.None));
@@ -61,7 +66,8 @@ public class ClassificarOrdemServicoUseCaseTests
         var os = OrdemServico.CriarRecebida(Guid.NewGuid());
         repo.Setup(x => x.ObterOrdemServico(os.Id, It.IsAny<CancellationToken>())).ReturnsAsync(os);
 
-        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+        var notificador = new Mock<INotificadorCliente>();
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object, notificador.Object);
 
         var ex = await Assert.ThrowsAsync<OficinaException>(() =>
             useCase.Executar(os.Id, "TipoInexistente", CancellationToken.None));
@@ -74,7 +80,8 @@ public class ClassificarOrdemServicoUseCaseTests
         var repo = new Mock<IOficinaRepository>();
         repo.Setup(x => x.ObterOrdemServico(It.IsAny<Guid>(), It.IsAny<CancellationToken>())).ReturnsAsync((OrdemServico?)null);
 
-        var useCase = new ClassificarOrdemServicoUseCase(repo.Object);
+        var notificador = new Mock<INotificadorCliente>();
+        var useCase = new ClassificarOrdemServicoUseCase(repo.Object, notificador.Object);
 
         var ex = await Assert.ThrowsAsync<OficinaException>(() =>
             useCase.Executar(Guid.NewGuid(), "Corretiva", CancellationToken.None));
