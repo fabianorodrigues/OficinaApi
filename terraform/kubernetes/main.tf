@@ -105,7 +105,7 @@ resource "kubernetes_deployment_v1" "oficina_app" {
   }
 }
 
-# --- 5. SERVICE ---
+# --- 5. SERVICE ----
 resource "kubernetes_service_v1" "oficina_service" { 
   metadata {
     name      = "oficina-service"
