@@ -14,7 +14,7 @@ provider "kubernetes" {
 }
 
 # 2. Namespace
-resource "kubernetes_namespace" "oficina" {
+resource "kubernetes_namespace_v1" "oficina" {
   metadata {
     name = var.namespace_name
   }
@@ -24,7 +24,7 @@ resource "kubernetes_namespace" "oficina" {
 resource "kubernetes_deployment" "oficina_app" {
   metadata {
     name      = "oficina-app"
-    namespace = kubernetes_namespace.oficina.metadata[0].name
+    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
     labels = {
       app = "oficina-api"
     }
@@ -63,7 +63,7 @@ resource "kubernetes_deployment" "oficina_app" {
 resource "kubernetes_service" "oficina_service" {
   metadata {
     name      = "oficina-service"
-    namespace = kubernetes_namespace.oficina.metadata[0].name
+    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
   }
 
   spec {
