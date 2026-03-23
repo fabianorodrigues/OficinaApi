@@ -15,7 +15,7 @@ variable "accessConfig" {
 }
 
 variable "nodeGroup" {
-  default = ["fiap"]
+  default = "fiap"
 }
 
 variable "instanceType" {
