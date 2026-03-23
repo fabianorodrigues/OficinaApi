@@ -16,6 +16,8 @@ module "eks" {
   create_iam_role          = false
   iam_role_arn             = var.cluster_iam_role_arn
 
+  create_node_iam_role = false
+
   # Acesso ao cluster
   enable_cluster_creator_admin_permissions = true
 
@@ -29,6 +31,8 @@ module "eks" {
       # Node IAM Role - Usando role existente
       create_iam_role = false
       iam_role_arn    = var.node_iam_role_arn
+
+      create_iam_role_policy = false
     }
   }
 }
