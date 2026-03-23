@@ -64,3 +64,10 @@ jobs:
             terraform -chdir=./terraform/kubernetes apply -auto-approve \
             -var="docker_image_tag=${{ github.sha }}" \
             -var="docker_image_repo=jaquelineramosit/oficina-api"
+
+      # Exibe a URL do Load Balancer
+      - name: Get Service URL
+        run: |
+          echo "Aguardando o Load Balancer gerar o DNS..."
+          sleep 10
+          terraform -chdir=./terraform/kubernetes output lb_hostname
