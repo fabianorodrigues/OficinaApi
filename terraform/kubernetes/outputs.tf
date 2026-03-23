@@ -7,7 +7,7 @@ output "deployment_name" {
 }
 
 output "service_name" {
-  value = kubernetes_service.oficina_service.metadata[0].name
+  value = kubernetes_service_v1.oficina_service.metadata[0].name
 }
 
 output "docker_image" {

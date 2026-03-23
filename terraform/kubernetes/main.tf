@@ -12,6 +12,7 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
+
 resource "kubernetes_namespace_v1" "oficina" {
   metadata {
     name = var.namespace_name
@@ -47,36 +48,17 @@ resource "kubernetes_deployment_v1" "oficina_app" {
         container {
           name  = "oficina-api"
           image = "${var.docker_image_repo}:${var.docker_image_tag}"
-          port {
-            container_port = var.container_port
-          }
-        }
-      }
-    }
-  }
-}
-
-resource "kubernetes_service" "oficina_service" {
-  metadata {
-    name      = "oficina-service"
-    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
-  }
-  spec {
-    template {
-      spec {
-        container {
-          name  = "oficina-api"
-          image = "${var.docker_image_repo}:${var.docker_image_tag}"
-
+          
+          # AS VARIÁVEIS DE AMBIENTE FICAM AQUI NO DEPLOYMENT!
           env_from {
             config_map_ref {
-              name = "oficina-config" # Nome do seu ConfigMap
+              name = "oficina-config"
             }
           }
 
           env_from {
             secret_ref {
-              name = "oficina-secret" # Nome da sua Secret
+              name = "oficina-secret"
             }
           }
 
@@ -96,5 +78,22 @@ resource "kubernetes_service" "oficina_service" {
         }
       }
     }
+  }
+}
+
+resource "kubernetes_service_v1" "oficina_service" { 
+  metadata {
+    name      = "oficina-service"
+    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
+  }
+  spec {
+    selector = {
+      app = "oficina-api"
+    }
+    port {
+      port        = var.service_port
+      target_port = var.container_port
+    }
+    type = "LoadBalancer"
   }
 }
