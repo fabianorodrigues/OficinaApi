@@ -53,7 +53,7 @@ jobs:
 
       # Configura kubeconfig
       - name: Configure kubeconfig
-        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name oficina-cluster
+        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name EKS-Oficina
 
       # Terraform Apply Kubernetes com tag dinâmica
       - name: Terraform Init Kubernetes
