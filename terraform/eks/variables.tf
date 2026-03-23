@@ -15,7 +15,7 @@ variable "accessConfig" {
 }
 
 variable "nodeGroup" {
-  default = "fiap"
+  default = "oficina-node-group"
 }
 
 variable "instanceType" {
