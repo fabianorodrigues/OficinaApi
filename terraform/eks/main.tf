@@ -19,8 +19,6 @@ module "eks" {
   # Acesso ao cluster
   enable_cluster_creator_admin_permissions = true
 
-  create_access_entry = false
-
   eks_managed_node_groups = {
     oficina_nodes = {
       instance_types = var.node_instance_types
