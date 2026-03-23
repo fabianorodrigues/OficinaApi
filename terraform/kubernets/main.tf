@@ -1,5 +1,5 @@
 provider "kubernetes" {
-  config_path = "" # Vai usar KUBECONFIG do ambiente
+  config_path = "" # Usa KUBECONFIG gerado no workflow
 }
 
 resource "kubernetes_namespace" "oficina" {

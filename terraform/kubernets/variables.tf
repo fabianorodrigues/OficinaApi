@@ -9,8 +9,9 @@ variable "docker_image_repo" {
 }
 
 variable "docker_image_tag" {
-  type    = string
-  default = "latest"
+  description = "Tag da imagem Docker (via GitHub Actions)"
+  type        = string
+  default     = "latest"
 }
 
 variable "replicas" {
