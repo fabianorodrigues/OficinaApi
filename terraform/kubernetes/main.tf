@@ -1,4 +1,3 @@
-# 1. Ajuste o Provider para buscar as credenciais do EKS na AWS
 data "aws_eks_cluster" "cluster" {
   name = "EKS-Oficina" # Confirme se esse é o nome exato do seu cluster
 }
@@ -13,15 +12,13 @@ provider "kubernetes" {
   token                  = data.aws_eks_cluster_auth.cluster.token
 }
 
-# 2. Namespace
 resource "kubernetes_namespace_v1" "oficina" {
   metadata {
     name = var.namespace_name
   }
 }
 
-# 3. Deployment (Com as labels alinhadas)
-resource "kubernetes_deployment" "oficina_app" {
+resource "kubernetes_deployment_v1" "oficina_app" {
   metadata {
     name      = "oficina-app"
     namespace = kubernetes_namespace_v1.oficina.metadata[0].name
@@ -59,28 +56,45 @@ resource "kubernetes_deployment" "oficina_app" {
   }
 }
 
-# 4. Service (Tipo LoadBalancer)
 resource "kubernetes_service" "oficina_service" {
   metadata {
     name      = "oficina-service"
-    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
+    namespace = kubernetes_namespace.oficina.metadata[0].name
   }
-
   spec {
-    selector = {
-      app = "oficina-api"
-    }
+    template {
+      spec {
+        container {
+          name  = "oficina-api"
+          image = "${var.docker_image_repo}:${var.docker_image_tag}"
 
-    port {
-      port        = var.service_port
-      target_port = var.container_port
-    }
+          env_from {
+            config_map_ref {
+              name = "oficina-config" # Nome do seu ConfigMap
+            }
+          }
 
-    type = "LoadBalancer"
+          env_from {
+            secret_ref {
+              name = "oficina-secret" # Nome da sua Secret
+            }
+          }
+
+          env {
+            name = "ConnectionStrings__SqlServer" 
+            value_from {
+              secret_key_ref {
+                name = "oficina-secret"
+                key  = "CONNECTION_STRING"
+              }
+            }
+          }
+
+          port {
+            container_port = var.container_port
+          }
+        }
+      }
+    }
   }
-}
-
-# 5. Output da URL (Para você ver no Github Actions)
-output "url_da_api" {
-  value = kubernetes_service.oficina_service.status[0].load_balancer[0].ingress[0].hostname
 }
