@@ -7,7 +7,6 @@ module "eks" {
   version = "19.16.0"
 
   name    = var.cluster_name
-  version = "1.27"
 
   # Criar VPC e subnets automaticamente
   vpc_id     = null
