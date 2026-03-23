@@ -59,7 +59,7 @@ resource "kubernetes_deployment_v1" "oficina_app" {
 resource "kubernetes_service" "oficina_service" {
   metadata {
     name      = "oficina-service"
-    namespace = kubernetes_namespace.oficina.metadata[0].name
+    namespace = kubernetes_namespace_v1.oficina.metadata[0].name
   }
   spec {
     template {

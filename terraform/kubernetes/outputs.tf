@@ -3,7 +3,7 @@ output "namespace" {
 }
 
 output "deployment_name" {
-  value = kubernetes_deployment.oficina_app.metadata[0].name
+  value = kubernetes_deployment_v1.oficina_app.metadata[0].name
 }
 
 output "service_name" {
