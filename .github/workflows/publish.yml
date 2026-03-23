@@ -60,6 +60,7 @@ jobs:
         run: terraform -chdir=./terraform/kubernetes init
 
       - name: Terraform Apply Kubernetes
-        run: terraform -chdir=./terraform/kubernetes apply -auto-approve \
-              -var="docker_image_tag=${{ github.sha }}" \
-              -var="docker_image_repo=jaquelineramosit/oficina-api"
+        run: | 
+            terraform -chdir=./terraform/kubernetes apply -auto-approve \
+            -var="docker_image_tag=${{ github.sha }}" \
+            -var="docker_image_repo=jaquelineramosit/oficina-api"
