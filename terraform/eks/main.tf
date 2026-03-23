@@ -16,10 +16,10 @@ module "eks" {
   create_iam_role          = false
   iam_role_arn             = var.cluster_iam_role_arn
 
-  create_node_iam_role = false
-
   # Acesso ao cluster
   enable_cluster_creator_admin_permissions = true
+
+  create_access_entry = false
 
   eks_managed_node_groups = {
     oficina_nodes = {
@@ -28,7 +28,6 @@ module "eks" {
       max_size     = var.max_capacity
       desired_size = var.desired_capacity
 
-      # Node IAM Role - Usando role existente
       create_iam_role = false
       iam_role_arn    = var.node_iam_role_arn
 
