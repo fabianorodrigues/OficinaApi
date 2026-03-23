@@ -38,7 +38,7 @@ resource "kubernetes_secret_v1" "oficina_secret" {
     namespace = kubernetes_namespace_v1.oficina.metadata[0].name
   }
   type = "Opaque"
-  string_data = {
+  data = {
     CONNECTION_STRING = "Server=sqlserver,1433;Database=OficinaDb;User Id=sa;Password=Your_password123!;TrustServerCertificate=True;"
   }
 }
