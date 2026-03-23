@@ -47,11 +47,14 @@ resource "kubernetes_service" "oficina_service" {
   metadata {
     name      = "oficina-service"
     namespace = kubernetes_namespace.oficina.metadata[0].name
+    labels = {
+      app = "oficina-api"
+    }
   }
 
   spec {
     selector = {
-      app = kubernetes_deployment.oficina_app.metadata[0].labels["app"]
+      app = "oficina-api"
     }
 
     port {
