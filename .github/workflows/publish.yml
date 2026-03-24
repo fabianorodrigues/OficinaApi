@@ -1,0 +1,66 @@
+name: Workflow - OficinaApi
+
+on: 
+  push:
+    branches: [feat/jaque]
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Docker login
+      - name: Docker Login
+        uses: docker/login-action@v4
+        with:
+          username: jaquelineramosit
+          password: ${{ secrets.DOCKERHUB_PA_SECRET }}
+
+      # Build e push Docker
+      - name: Build and Push Docker
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          tags: |
+            jaquelineramosit/oficina-api:latest
+            jaquelineramosit/oficina-api:${{ github.sha }}
+          push: true
+
+      # Configura AWS (com role temporário)
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      # Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.6.0
+
+      # Terraform Apply EKS
+      - name: Terraform Init EKS
+        run: terraform -chdir=./terraform/eks init
+
+      - name: Terraform Apply EKS
+        run: terraform -chdir=./terraform/eks apply -auto-approve
+
+      # Configura kubeconfig
+      - name: Configure kubeconfig
+        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name EKS-Oficina
+
+      # Terraform Apply Kubernetes com tag dinâmica
+      - name: Terraform Init Kubernetes
+        run: terraform -chdir=./terraform/kubernetes init
+
+      - name: Terraform Apply Kubernetes
+        run: | 
+            terraform -chdir=./terraform/kubernetes apply -auto-approve \
+            -var="docker_image_tag=${{ github.sha }}" \
+            -var="docker_image_repo=jaquelineramosit/oficina-api"
