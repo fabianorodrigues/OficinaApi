@@ -210,7 +210,7 @@ Configurações para fluxo de aprovação e recusa de orçamento por e-mail no a
 
 ### 7.1 Collection Postman (cenários de teste)
 
-- Link da collection: [OficinaApi.postman_collection.json](./postman/OficinaApi.postman_collection.json)
+- Link da collection/environment: [Postman](./postman/OficinaApi.postman_collection.json)
 - Cenários incluídos:
   - autenticação (login com captura automática de JWT);
   - cadastro base (cliente e veículo);
