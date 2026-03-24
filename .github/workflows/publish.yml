@@ -2,7 +2,7 @@ name: Workflow - OficinaApi
 
 on: 
   push:
-    branches: [main, developer, feat/jaque]
+    branches: [feat/jaque]
 
 jobs:
   build-deploy:
