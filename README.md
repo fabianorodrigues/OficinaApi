@@ -208,6 +208,17 @@ Configurações para fluxo de aprovação e recusa de orçamento por e-mail no a
 | GET | `/api/orcamentos/acoes-externas/recusar?token=...` | Pública |
 | GET | `/api/relatorios/tempo-medio-execucao` | JWT |
 
+### 7.1 Collection Postman (cenários de teste)
+
+- Link da collection: [OficinaApi.postman_collection.json](./postman/OficinaApi.postman_collection.json)
+- Cenários incluídos:
+  - autenticação (login com captura automática de JWT);
+  - cadastro base (cliente e veículo);
+  - fluxo de OS (abertura, classificação e consulta de status);
+  - orçamento (aprovar e recusar);
+  - relatório (tempo médio de execução).
+
+
 ## 8) Testes e cobertura
 ![Coverage](./badges/badge_combined.svg)
 
