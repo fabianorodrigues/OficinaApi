@@ -244,7 +244,7 @@ Saída de cobertura (formato Cobertura):
 
 ## 10) Vídeo de demonstração
 
-- _[inserir link do vídeo aqui]_
+- [Vídeo](https://youtu.be/8kAxO5SFWiY)
 
 ## 11) Evolução contínua da solução (Fase 1 → Fase 2)
 
