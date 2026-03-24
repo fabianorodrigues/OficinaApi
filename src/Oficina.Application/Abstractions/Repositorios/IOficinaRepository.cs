@@ -9,6 +9,7 @@ public interface IOficinaRepository
     Task AdicionarOrdemServico(OrdemServico os, CancellationToken ct);
 
     Task<Orcamento?> ObterOrcamento(Guid id, CancellationToken ct);
+    Task<Orcamento?> ObterOrcamentoPorTokenAcaoExterna(string token, CancellationToken ct);
     Task<Orcamento?> ObterOrcamentoPorOs(Guid ordemServicoId, CancellationToken ct);
     Task AdicionarOrcamento(Orcamento orcamento, CancellationToken ct);
 

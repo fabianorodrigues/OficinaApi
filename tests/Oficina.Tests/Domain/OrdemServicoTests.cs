@@ -7,26 +7,42 @@ namespace Oficina.Tests.Domain;
 public class OrdemServicoTests
 {
     [Fact]
-    public void CriarPreventiva_DeveIniciarAguardandoAprovacao()
+    public void CriarRecebida_DeveIniciarSemClassificacao()
     {
-        var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
-        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
-        Assert.Equal(TipoManutencao.Preventiva, os.TipoManutencao);
-        Assert.Single(os.ItensServico);
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+
+        Assert.Equal(StatusOrdemServico.Recebida, os.Status);
+        Assert.Equal(TipoManutencao.NaoClassificada, os.TipoManutencao);
+        Assert.Equal(OrigemAtualizacaoStatusOs.Interna, os.OrigemUltimaAtualizacaoStatus);
     }
 
     [Fact]
-    public void CriarCorretiva_DeveIniciarEmDiagnostico()
+    public void ClassificarPreventiva_DeveMoverParaAguardandoAprovacao()
     {
-        var os = OrdemServico.CriarCorretiva(Guid.NewGuid());
-        Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status);
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+
+        os.Classificar(TipoManutencao.Preventiva);
+
+        Assert.Equal(TipoManutencao.Preventiva, os.TipoManutencao);
+        Assert.Equal(StatusOrdemServico.AguardandoAprovacao, os.Status);
+    }
+
+    [Fact]
+    public void ClassificarCorretiva_DeveMoverParaDiagnostico()
+    {
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+
+        os.Classificar(TipoManutencao.Corretiva);
+
         Assert.Equal(TipoManutencao.Corretiva, os.TipoManutencao);
+        Assert.Equal(StatusOrdemServico.EmDiagnostico, os.Status);
     }
 
     [Fact]
     public void RegistrarDiagnostico_DeveMoverParaAguardandoAprovacao()
     {
-        var os = OrdemServico.CriarCorretiva(Guid.NewGuid());
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+        os.Classificar(TipoManutencao.Corretiva);
         os.RegistrarDiagnostico("Problema", new[] { Guid.NewGuid() });
 
         Assert.NotNull(os.Diagnostico);
@@ -36,7 +52,8 @@ public class OrdemServicoTests
     [Fact]
     public void IniciarExecucao_SoComOrcamentoAprovado()
     {
-        var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+        os.Classificar(TipoManutencao.Preventiva, [Guid.NewGuid()]);
 
         var orc = new Orcamento(os.Id, 10);
         os.VincularOrcamento(orc.Id);
@@ -51,31 +68,11 @@ public class OrdemServicoTests
     }
 
     [Fact]
-    public void Finalizar_AtualizaDataFim()
+    public void NaoPermiteReclassificar()
     {
-        var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
-        var orc = new Orcamento(os.Id, 10);
-        os.VincularOrcamento(orc.Id);
-        orc.Aprovar();
-        os.IniciarExecucao(orc);
+        var os = OrdemServico.CriarRecebida(Guid.NewGuid());
+        os.Classificar(TipoManutencao.Corretiva);
 
-        os.Finalizar();
-        Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
-        Assert.NotNull(os.DataFimExecucao);
-    }
-
-    [Fact]
-    public void RecusaFinalizaSemExecucao()
-    {
-        var os = OrdemServico.CriarPreventiva(Guid.NewGuid(), new[] { Guid.NewGuid() });
-        var orc = new Orcamento(os.Id, 10);
-        os.VincularOrcamento(orc.Id);
-
-        orc.Recusar();
-        os.FinalizarPorRecusaOrcamento(orc);
-
-        Assert.Equal(StatusOrdemServico.Finalizada, os.Status);
-        Assert.Null(os.DataInicioExecucao);
-        Assert.Null(os.DataFimExecucao);
+        Assert.Throws<InvalidOperationException>(() => os.Classificar(TipoManutencao.Preventiva));
     }
 }

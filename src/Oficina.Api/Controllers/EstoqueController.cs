@@ -14,31 +14,24 @@ public class EstoqueController : ControllerBase
     private readonly ObterEstoqueInsumoUseCase _obterInsumo;
     private readonly AjustarEstoquePecaUseCase _ajustarPeca;
     private readonly AjustarEstoqueInsumoUseCase _ajustarInsumo;
-    private readonly ObterPecaUseCase _obterPecaCatalogo;
-    private readonly ObterInsumoUseCase _obterInsumoCatalogo;
 
     public EstoqueController(
         ObterEstoquePecaUseCase obterPeca,
         ObterEstoqueInsumoUseCase obterInsumo,
         AjustarEstoquePecaUseCase ajustarPeca,
-        AjustarEstoqueInsumoUseCase ajustarInsumo,
-        ObterPecaUseCase obterPecaCatalogo,
-        ObterInsumoUseCase obterInsumoCatalogo)
+        AjustarEstoqueInsumoUseCase ajustarInsumo)
     {
         _obterPeca = obterPeca;
         _obterInsumo = obterInsumo;
         _ajustarPeca = ajustarPeca;
         _ajustarInsumo = ajustarInsumo;
-        _obterPecaCatalogo = obterPecaCatalogo;
-        _obterInsumoCatalogo = obterInsumoCatalogo;
     }
 
     [HttpGet("pecas/{pecaId:guid}")]
     public async Task<IActionResult> ObterPeca(Guid pecaId, CancellationToken ct)
     {
-        var qtd = await _obterPeca.Executar(pecaId, ct);
-        var peca = await _obterPecaCatalogo.Executar(pecaId, ct);
-        return Ok(new { pecaId, peca.Descricao, quantidade = qtd });
+        var item = await _obterPeca.Executar(pecaId, ct);
+        return Ok(item);
     }
 
     [HttpPost("pecas/{pecaId:guid}/ajustar")]
@@ -51,9 +44,8 @@ public class EstoqueController : ControllerBase
     [HttpGet("insumos/{insumoId:guid}")]
     public async Task<IActionResult> ObterInsumo(Guid insumoId, CancellationToken ct)
     {
-        var qtd = await _obterInsumo.Executar(insumoId, ct);
-        var insumo = await _obterInsumoCatalogo.Executar(insumoId, ct);
-        return Ok(new { insumoId, insumo.Descricao, quantidade = qtd });
+        var item = await _obterInsumo.Executar(insumoId, ct);
+        return Ok(item);
     }
 
     [HttpPost("insumos/{insumoId:guid}/ajustar")]

@@ -1,6 +1,8 @@
 using Oficina.Application.Abstractions.Repositorios;
 using Oficina.Application.Shared;
+using Oficina.Application.DTO.Oficina;
 using Oficina.Domain.Oficina;
+using Oficina.Domain.Oficina.Enums;
 
 namespace Oficina.Application.UseCases.Oficina;
 
@@ -22,8 +24,38 @@ public class ListarOrdensServicoUseCase
     private readonly IOficinaRepository _repo;
     public ListarOrdensServicoUseCase(IOficinaRepository repo) => _repo = repo;
 
-    public Task<IReadOnlyList<OrdemServico>> Executar(CancellationToken ct)
-        => _repo.ListarOrdensServico(ct);
+    public async Task<IReadOnlyList<OrdemServicoListaItemResponse>> Executar(CancellationToken ct)
+    {
+        var ordens = await _repo.ListarOrdensServico(ct);
+
+        return ordens
+            .Where(DeveSerListada)
+            .OrderBy(os => ObterPrioridadeStatus(os.Status))
+            .ThenBy(os => os.DataCriacao)
+            .ThenBy(os => os.Id)
+            .Select(os => new OrdemServicoListaItemResponse
+            {
+                Id = os.Id,
+                VeiculoId = os.VeiculoId,
+                TipoManutencao = os.TipoManutencao.ToString(),
+                Status = os.Status.ToString(),
+                DataCriacao = os.DataCriacao
+            })
+            .ToList();
+    }
+
+    private static bool DeveSerListada(OrdemServico os)
+        => os.Status is not StatusOrdemServico.Finalizada and not StatusOrdemServico.Entregue;
+
+    private static int ObterPrioridadeStatus(StatusOrdemServico status)
+        => status switch
+        {
+            StatusOrdemServico.EmExecucao => 1,
+            StatusOrdemServico.AguardandoAprovacao => 2,
+            StatusOrdemServico.EmDiagnostico => 3,
+            StatusOrdemServico.Recebida => 4,
+            _ => int.MaxValue
+        };
 }
 
 public class FinalizarOrdemServicoUseCase
