@@ -37,35 +37,98 @@ A aplicação segue **Clean Architecture** com organização modular e conceitos
 
 ## 4) Como executar o projeto
 
-### Pré-requisitos
+Você pode rodar de **2 formas**:
+- **Opção A: Docker Compose + API local (dotnet run)**
+- **Opção B: Kubernetes local com Minikube (imagem no Docker Hub)**
+
+### Opção A) Docker Compose + API local
+
+#### Pré-requisitos
 - .NET SDK 9
 - Docker + Docker Compose
 - `dotnet-ef`
 
-### Docker Compose
+#### 1. Subir infraestrutura (SQL Server + smtp4dev)
 ```bash
 docker compose -f docker/docker-compose.yml up -d sqlserver smtp4dev
 ```
 
-### Migrations
+#### 2. Aplicar migrations
 ```bash
 dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj
 ```
 
-### Execução da API
+#### 3. Subir a API
 ```bash
 dotnet run --project src/Oficina.Api
 ```
 
-### Swagger
-- Ambiente local: `http://localhost:49324/swagger`
-- Ambiente Docker: `http://localhost:8080/swagger`
+#### 4. Acessar Swagger
+```text
+http://localhost:49324/swagger
+```
 
-> Para subir API + SQL Server + smtp4dev no compose:
+> Para subir API + SQL Server + smtp4dev via compose:
 >
 > ```bash
 > docker compose -f docker/docker-compose.yml up --build
 > ```
+
+### Opção B) Kubernetes local com Minikube
+
+> Fluxo simplificado para subir **infra + API** no Minikube, usando a imagem da API direto do Docker Hub.
+
+#### Pré-requisitos
+- Docker
+- Minikube
+- kubectl
+
+#### 1. Iniciar o cluster local
+```bash
+minikube start
+```
+
+#### 2. Aplicar os manifestos Kubernetes
+```bash
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/secret.yaml
+kubectl apply -f k8s/sqlserver-deployment.yaml
+kubectl apply -f k8s/sqlserver-service.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+```
+
+#### 3. Validar se os pods estão prontos
+```bash
+kubectl get pods
+```
+
+#### 4. Obter a URL local da API
+```bash
+minikube service oficina-api-service --url
+```
+
+#### 5. Abrir o Swagger
+Com a URL retornada no passo anterior, acesse:
+
+```text
+http://<URL_DO_MINIKUBE>/swagger
+```
+
+Exemplo:
+```text
+http://127.0.0.1:30007/swagger
+```
+
+#### (Opcional) Limpar ambiente
+```bash
+kubectl delete -f k8s/service.yaml
+kubectl delete -f k8s/deployment.yaml
+kubectl delete -f k8s/sqlserver-service.yaml
+kubectl delete -f k8s/sqlserver-deployment.yaml
+kubectl delete -f k8s/secret.yaml
+kubectl delete -f k8s/configmap.yaml
+```
 
 ## 5) Integração de e-mail (smtp4dev)
 
