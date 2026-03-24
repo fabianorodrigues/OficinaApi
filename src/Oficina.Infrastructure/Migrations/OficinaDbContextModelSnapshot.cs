@@ -159,6 +159,13 @@ namespace Oficina.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
+                    b.Property<string>("TokenAcaoExterna")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTimeOffset?>("TokenAcaoExternaExpiraEm")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<decimal>("ValorTotal")
                         .HasColumnType("decimal(18,2)");
 
@@ -166,6 +173,10 @@ namespace Oficina.Infrastructure.Migrations
 
                     b.HasIndex("OrdemServicoId")
                         .IsUnique();
+
+                    b.HasIndex("TokenAcaoExterna")
+                        .IsUnique()
+                        .HasFilter("[TokenAcaoExterna] IS NOT NULL");
 
                     b.ToTable("Orcamentos", (string)null);
                 });
@@ -185,8 +196,14 @@ namespace Oficina.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DataInicioExecucao")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<DateTimeOffset>("DataUltimaAtualizacaoStatus")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<Guid?>("OrcamentoId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("OrigemUltimaAtualizacaoStatus")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

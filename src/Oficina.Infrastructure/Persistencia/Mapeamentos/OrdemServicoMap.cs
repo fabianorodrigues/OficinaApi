@@ -15,6 +15,8 @@ public class OrdemServicoMap : IEntityTypeConfiguration<OrdemServico>
         b.Property(x => x.VeiculoId).IsRequired();
         b.Property(x => x.TipoManutencao).IsRequired();
         b.Property(x => x.Status).IsRequired();
+        b.Property(x => x.OrigemUltimaAtualizacaoStatus).IsRequired();
+        b.Property(x => x.DataUltimaAtualizacaoStatus).IsRequired();
         b.Property(x => x.DataCriacao).IsRequired();
         b.Property(x => x.DataInicioExecucao);
         b.Property(x => x.DataFimExecucao);

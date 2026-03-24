@@ -35,16 +35,22 @@ public static class DependencyInjection
         services.AddScoped<AjustarEstoqueInsumoUseCase>();
 
         // Oficina
+        services.AddScoped<AbrirOrdemServicoUseCase>();
         services.AddScoped<CriarOsPreventivaUseCase>();
         services.AddScoped<CriarOsCorretivaUseCase>();
         services.AddScoped<RegistrarDiagnosticoUseCase>();
+        services.AddScoped<ClassificarOrdemServicoUseCase>();
         services.AddScoped<AprovarOrcamentoUseCase>();
         services.AddScoped<RecusarOrcamentoUseCase>();
+        services.AddScoped<ProcessarAcaoExternaOrcamentoUseCase>();
         services.AddScoped<ObterOrdemServicoUseCase>();
+        services.AddScoped<ObterStatusOrdemServicoUseCase>();
+        services.AddScoped<ObterOrdemServicoDetalhadaUseCase>();
         services.AddScoped<ListarOrdensServicoUseCase>();
         services.AddScoped<FinalizarOrdemServicoUseCase>();
         services.AddScoped<EntregarOrdemServicoUseCase>();
         services.AddScoped<ObterOrcamentoUseCase>();
+        services.AddScoped<ObterOrcamentoDetalhadoUseCase>();
         services.AddScoped<RelatorioTempoMedioExecucaoUseCase>();
 
         return services;

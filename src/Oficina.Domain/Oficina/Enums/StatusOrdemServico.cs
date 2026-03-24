@@ -2,6 +2,7 @@ namespace Oficina.Domain.Oficina.Enums;
 
 public enum StatusOrdemServico
 {
+    Recebida = 0,
     EmDiagnostico = 1,
     AguardandoAprovacao = 2,
     EmExecucao = 3,

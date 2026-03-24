@@ -24,6 +24,8 @@ public class Orcamento : AgregadoRaiz
     public StatusOrcamento Status { get; private set; }
     public decimal ValorTotal { get; private set; }
     public DateTimeOffset DataCriacao { get; private set; }
+    public string? TokenAcaoExterna { get; private set; }
+    public DateTimeOffset? TokenAcaoExternaExpiraEm { get; private set; }
 
     public IReadOnlyCollection<OrcamentoItemServico> ItensServico => _itensServico;
     public IReadOnlyCollection<OrcamentoItemMaterial> ItensMaterial => _itensMaterial;
@@ -54,6 +56,15 @@ public class Orcamento : AgregadoRaiz
             throw new InvalidOperationException("Orçamento não está aguardando aprovação.");
 
         Status = StatusOrcamento.Recusado;
+    }
+
+    public void DefinirTokenAcaoExterna(string token, DateTimeOffset expiraEm)
+    {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Token externo inválido.", nameof(token));
+
+        TokenAcaoExterna = token;
+        TokenAcaoExternaExpiraEm = expiraEm;
     }
 }
 

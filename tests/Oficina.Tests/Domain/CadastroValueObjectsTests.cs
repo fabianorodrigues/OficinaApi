@@ -19,6 +19,12 @@ public class CadastroValueObjectsTests
     }
 
     [Fact]
+    public void DocumentoCpfCnpj_CpfComDigitoInvalido_DeveFalhar()
+    {
+        Assert.Throws<ArgumentException>(() => new DocumentoCpfCnpj("123.456.789-00"));
+    }
+
+    [Fact]
     public void Placa_DeveNormalizar()
     {
         var placa = new Placa("abc-1234");

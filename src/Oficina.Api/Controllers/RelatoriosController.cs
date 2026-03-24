@@ -19,17 +19,7 @@ public class RelatoriosController : ControllerBase
     [HttpGet("tempo-medio-execucao")]
     public async Task<IActionResult> TempoMedioExecucao(CancellationToken ct)
     {
-        var media = await _tempoMedio.Executar(ct);
-
-        return Ok(new
-        {
-            tempoMedio = media is null ? null : new
-            {
-                dias = media.Value.Days,
-                horas = media.Value.Hours,
-                minutos = media.Value.Minutes,
-                segundos = media.Value.Seconds
-            }
-        });
+        var response = await _tempoMedio.Executar(ct);
+        return Ok(response);
     }
 }

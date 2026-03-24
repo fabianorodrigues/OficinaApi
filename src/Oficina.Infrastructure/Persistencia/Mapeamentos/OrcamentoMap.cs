@@ -15,6 +15,9 @@ public class OrcamentoMap : IEntityTypeConfiguration<Orcamento>
         b.Property(x => x.Status).IsRequired();
         b.Property(x => x.ValorTotal).HasColumnType("decimal(18,2)").IsRequired();
         b.Property(x => x.DataCriacao).IsRequired();
+        b.Property(x => x.TokenAcaoExterna).HasMaxLength(200);
+        b.Property(x => x.TokenAcaoExternaExpiraEm);
+        b.HasIndex(x => x.TokenAcaoExterna).IsUnique();
 
         b.HasIndex(x => x.OrdemServicoId).IsUnique();
 

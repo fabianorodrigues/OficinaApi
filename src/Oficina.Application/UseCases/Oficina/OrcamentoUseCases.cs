@@ -17,7 +17,10 @@ public class AprovarOrcamentoUseCase
         _estoqueRepo = estoqueRepo;
     }
 
-    public async Task Executar(Guid orcamentoId, CancellationToken ct)
+    public async Task Executar(
+        Guid orcamentoId,
+        CancellationToken ct,
+        OrigemAtualizacaoStatusOs origemAtualizacaoStatus = OrigemAtualizacaoStatusOs.Interna)
     {
         var orcamento = await _oficina.ObterOrcamento(orcamentoId, ct)
                        ?? throw new OficinaException("Orçamento não encontrado.", 404);
@@ -46,7 +49,7 @@ public class AprovarOrcamentoUseCase
             }
         }
 
-        os.IniciarExecucao(orcamento);
+        os.IniciarExecucao(orcamento, origemAtualizacaoStatus);
 
         await _estoqueRepo.Salvar(ct);
         await _oficina.Salvar(ct);
@@ -64,7 +67,10 @@ public class RecusarOrcamentoUseCase
         _notificador = notificador;
     }
 
-    public async Task Executar(Guid orcamentoId, CancellationToken ct)
+    public async Task Executar(
+        Guid orcamentoId,
+        CancellationToken ct,
+        OrigemAtualizacaoStatusOs origemAtualizacaoStatus = OrigemAtualizacaoStatusOs.Interna)
     {
         var orcamento = await _oficina.ObterOrcamento(orcamentoId, ct)
                        ?? throw new OficinaException("Orçamento não encontrado.", 404);
@@ -73,7 +79,7 @@ public class RecusarOrcamentoUseCase
                  ?? throw new OficinaException("Ordem de serviço não encontrada.", 404);
 
         orcamento.Recusar();
-        os.FinalizarPorRecusaOrcamento(orcamento);
+        os.FinalizarPorRecusaOrcamento(orcamento, origemAtualizacaoStatus);
 
         await _oficina.Salvar(ct);
 
