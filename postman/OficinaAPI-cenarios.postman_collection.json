@@ -1,0 +1,2053 @@
+{
+  "info": {
+    "_postman_id": "f90f3a5f-033f-4c5c-a4e5-bef1286d3a4d",
+    "name": "Oficina API",
+    "description": "Collection criada e organizada por cenários importantes da Fase 2, com headers, auth e payloads.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "51610059",
+    "_collection_link": "https://go.postman.co/collection/51610059-f90f3a5f-033f-4c5c-a4e5-bef1286d3a4d?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "01 - Auth",
+      "item": [
+        {
+          "name": "01.01 - Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "const token = data.accessToken || data.token || data.jwt || \"\";",
+                  "if (token) {",
+                  "  pm.collectionVariables.set(\"token\", token);",
+                  "  pm.environment.set(\"token\", token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"admin\",\n  \"senha\": \"admin\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Autenticação inicial. Salva automaticamente o token no environment/collection."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Cadastro Base",
+      "item": [
+        {
+          "name": "02.01 - Criar Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"clienteId\", [\"id\", \"clienteId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpfCnpj\": \"39053344705\",\n  \"nome\": \"Cliente Postman Fase 2\",\n  \"email\": \"cliente.postman@teste.local\",\n  \"telefone\": \"11999998888\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes"
+              ]
+            },
+            "description": "Cria um cliente base para os cenários."
+          },
+          "response": []
+        },
+        {
+          "name": "02.02 - Obter Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"clienteId\", [\"id\", \"clienteId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{clienteId}}"
+              ]
+            },
+            "description": "Consulta o cliente criado."
+          },
+          "response": []
+        },
+        {
+          "name": "02.03 - Atualizar Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"clienteId\", [\"id\", \"clienteId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cpfCnpj\": \"39053344705\",\n  \"nome\": \"Cliente Postman Atualizado\",\n  \"email\": \"cliente.atualizado@teste.local\",\n  \"telefone\": \"11911112222\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/clientes/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "clientes",
+                "{{clienteId}}"
+              ]
+            },
+            "description": "Atualiza os dados do cliente."
+          },
+          "response": []
+        },
+        {
+          "name": "02.04 - Criar Veículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"veiculoId\", [\"id\", \"veiculoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clienteId\": \"{{clienteId}}\",\n  \"placa\": \"ABC1D23\",\n  \"renavam\": \"12345678901\",\n  \"modelo\": {\n    \"descricao\": \"Corolla\",\n    \"marca\": \"Toyota\",\n    \"ano\": 2020\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/veiculos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "veiculos"
+              ]
+            },
+            "description": "Cria veículo vinculado ao cliente."
+          },
+          "response": []
+        },
+        {
+          "name": "02.05 - Obter Veículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"veiculoId\", [\"id\", \"veiculoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/veiculos/{{veiculoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "veiculos",
+                "{{veiculoId}}"
+              ]
+            },
+            "description": "Consulta o veículo criado."
+          },
+          "response": []
+        },
+        {
+          "name": "02.06 - Atualizar Veículo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"veiculoId\", [\"id\", \"veiculoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"placa\": \"ABC1D23\",\n  \"renavam\": \"12345678901\",\n  \"modelo\": {\n    \"descricao\": \"Corolla GLI\",\n    \"marca\": \"Toyota\",\n    \"ano\": 2021\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/veiculos/{{veiculoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "veiculos",
+                "{{veiculoId}}"
+              ]
+            },
+            "description": "Atualiza modelo do veículo."
+          },
+          "response": []
+        },
+        {
+          "name": "02.07 - Listar Veículos por Cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/veiculos/por-cliente/{{clienteId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "veiculos",
+                "por-cliente",
+                "{{clienteId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Catálogo e Estoque",
+      "item": [
+        {
+          "name": "03.01 - Criar Peça",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"pecaId\", [\"id\", \"pecaId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precoUnitario\": 49.9,\n  \"descricao\": \"Filtro de óleo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pecas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pecas"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.02 - Obter Peça",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"pecaId\", [\"id\", \"pecaId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pecas/{{pecaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pecas",
+                "{{pecaId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.03 - Atualizar Peça",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"pecaId\", [\"id\", \"pecaId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precoUnitario\": 59.9,\n  \"descricao\": \"Filtro de óleo premium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pecas/{{pecaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "pecas",
+                "{{pecaId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.04 - Ajustar Estoque de Peça",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantidade\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/estoque/pecas/{{pecaId}}/ajustar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estoque",
+                "pecas",
+                "{{pecaId}}",
+                "ajustar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.05 - Consultar Estoque de Peça",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estoque/pecas/{{pecaId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estoque",
+                "pecas",
+                "{{pecaId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.06 - Criar Insumo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"insumoId\", [\"id\", \"insumoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precoUnitario\": 39.9,\n  \"descricao\": \"Óleo 5W30 1L\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/insumos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insumos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.07 - Obter Insumo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"insumoId\", [\"id\", \"insumoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/insumos/{{insumoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insumos",
+                "{{insumoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.08 - Atualizar Insumo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"insumoId\", [\"id\", \"insumoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"precoUnitario\": 44.9,\n  \"descricao\": \"Óleo 5W30 sintético 1L\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/insumos/{{insumoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "insumos",
+                "{{insumoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.09 - Ajustar Estoque de Insumo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantidade\": 10\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/estoque/insumos/{{insumoId}}/ajustar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estoque",
+                "insumos",
+                "{{insumoId}}",
+                "ajustar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.10 - Consultar Estoque de Insumo",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/estoque/insumos/{{insumoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "estoque",
+                "insumos",
+                "{{insumoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "03.11 - Criar Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"servicoId\", [\"id\", \"servicoId\"]);",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"maoDeObra\": 120.0,\n  \"pecas\": [\n    {\n      \"id\": \"{{pecaId}}\",\n      \"quantidade\": 1\n    }\n  ],\n  \"insumos\": [\n    {\n      \"id\": \"{{insumoId}}\",\n      \"quantidade\": 1\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/servicos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "servicos"
+              ]
+            },
+            "description": "Cria um serviço referenciando peça e insumo já criados."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Ordem de Serviço - Fluxo Principal",
+      "item": [
+        {
+          "name": "04.01 - Abrir OS Completa",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "const osId = data.id || data.ordemServicoId;",
+                  "if (osId) {",
+                  "  pm.collectionVariables.set(\"ordemServicoId\", osId);",
+                  "  pm.environment.set(\"ordemServicoId\", osId);",
+                  "}",
+                  "const status = data.status;",
+                  "if (status) {",
+                  "  pm.collectionVariables.set(\"ordemServicoStatus\", status);",
+                  "  pm.environment.set(\"ordemServicoStatus\", status);",
+                  "}",
+                  "const total = data.total || data.valorTotal;",
+                  "if (total !== undefined) {",
+                  "  pm.collectionVariables.set(\"ordemServicoTotal\", String(total));",
+                  "  pm.environment.set(\"ordemServicoTotal\", String(total));",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente\": {\n    \"nome\": \"Cliente OS Completa\",\n    \"documento\": \"36008943074\",\n    \"email\": \"cliente.os@teste.local\",\n    \"telefone\": \"11988887777\"\n  },\n  \"veiculo\": {\n    \"placa\": \"EVT4327\",\n    \"renavam\": \"02446161264\",\n    \"modelo\": {\n      \"descricao\": \"Civic\",\n      \"marca\": \"Honda\",\n      \"ano\": 2019\n    }\n  },\n  \"itens\": {\n    \"servicos\": [\n      {\n        \"servicoId\": \"{{servicoId}}\"\n      }\n    ],\n    \"pecas\": [\n      {\n        \"pecaId\": \"{{pecaId}}\",\n        \"quantidade\": 1\n      }\n    ],\n    \"insumos\": [\n      {\n        \"insumoId\": \"{{insumoId}}\",\n        \"quantidade\": 1\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.02 - Classificar OS como Preventiva",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoManutencao\": \"Preventiva\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/classificar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "classificar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.03 - Consultar Status da OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.04 - Obter Detalhes da OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "const orcamento = data.orcamento || {};",
+                  "const orcamentoId = orcamento.id || data.orcamentoId;",
+                  "if (orcamentoId) {",
+                  "  pm.collectionVariables.set(\"orcamentoId\", orcamentoId);",
+                  "  pm.environment.set(\"orcamentoId\", orcamentoId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "04.05 - Listar Ordens de Serviço",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Orçamento - Fluxo Interno",
+      "item": [
+        {
+          "name": "05.01 - Obter Orçamento",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "",
+                  "function saveIfPresent(varName, candidates) {",
+                  "  for (const c of candidates) {",
+                  "    if (data && data[c]) {",
+                  "      pm.collectionVariables.set(varName, data[c]);",
+                  "      pm.environment.set(varName, data[c]);",
+                  "      return;",
+                  "    }",
+                  "  }",
+                  "}",
+                  "",
+                  "saveIfPresent(\"orcamentoId\", [\"id\", \"orcamentoId\"]);",
+                  "",
+                  "",
+                  "if (data && data.token) {",
+                  "  pm.collectionVariables.set(\"token\", data.token);",
+                  "  pm.environment.set(\"token\", data.token);",
+                  "}",
+                  "if (data && data.accessToken) {",
+                  "  pm.collectionVariables.set(\"token\", data.accessToken);",
+                  "  pm.environment.set(\"token\", data.accessToken);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orcamentos/{{orcamentoId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orcamentos",
+                "{{orcamentoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.02 - Aprovar Orçamento Internamente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orcamentos/{{orcamentoId}}/aprovar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orcamentos",
+                "{{orcamentoId}}",
+                "aprovar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "05.03 - Recusar Orçamento Internamente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orcamentos/{{orcamentoId}}/recusar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orcamentos",
+                "{{orcamentoId}}",
+                "recusar"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 - Ordem de Serviço - Fluxo Corretivo",
+      "item": [
+        {
+          "name": "06.01 - Criar OS Corretiva",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "const osId = data.id || data.ordemServicoId;",
+                  "if (osId) {",
+                  "  pm.collectionVariables.set(\"ordemServicoId\", osId);",
+                  "  pm.environment.set(\"ordemServicoId\", osId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"veiculoId\": \"{{veiculoId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/corretiva",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "corretiva"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06.02 - Registrar Diagnóstico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });",
+                  "let data = {};",
+                  "try { data = pm.response.json(); } catch (e) {}",
+                  "const orcamentoId = data.id || data.orcamentoId;",
+                  "if (orcamentoId) {",
+                  "  pm.collectionVariables.set(\"orcamentoId\", orcamentoId);",
+                  "  pm.environment.set(\"orcamentoId\", orcamentoId);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Ruído na suspensão dianteira\",\n  \"servicoIds\": [\n    \"{{servicoId}}\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/diagnosticos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "diagnosticos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "06.03 - Obter Status da OS Corretiva",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/status",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 - Ações Externas por E-mail",
+      "item": [
+        {
+          "name": "07.01 - Aprovar Externamente por Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html, application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orcamentos/acoes-externas/aprovar?token={{externoToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orcamentos",
+                "acoes-externas",
+                "aprovar"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{externoToken}}"
+                }
+              ]
+            },
+            "description": "Use quando já tiver o token da mensagem recebida no smtp4dev."
+          },
+          "response": []
+        },
+        {
+          "name": "07.02 - Recusar Externamente por Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html, application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/orcamentos/acoes-externas/recusar?token={{externoToken}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orcamentos",
+                "acoes-externas",
+                "recusar"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{externoToken}}"
+                }
+              ]
+            },
+            "description": "Use quando já tiver o token da mensagem recebida no smtp4dev."
+          },
+          "response": []
+        },
+        {
+          "name": "07.03 - Aprovar usando Link Completo do smtp4dev",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html, application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}{{linkAprovarExterno}}",
+              "host": [
+                "{{baseUrl}}{{linkAprovarExterno}}"
+              ]
+            },
+            "description": "Cole o link completo do e-mail no environment em linkAprovarExterno."
+          },
+          "response": []
+        },
+        {
+          "name": "07.04 - Recusar usando Link Completo do smtp4dev",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/html, application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{linkRecusarExterno}}",
+              "host": [
+                "{{linkRecusarExterno}}"
+              ]
+            },
+            "description": "Cole o link completo do e-mail no environment em linkRecusarExterno."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "08 - Encerramento e Relatórios",
+      "item": [
+        {
+          "name": "08.01 - Finalizar OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/finalizar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "finalizar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08.02 - Entregar OS",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/ordens-servico/{{ordemServicoId}}/entregar",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ordens-servico",
+                "{{ordemServicoId}}",
+                "entregar"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "08.03 - Relatório de Tempo Médio de Execução",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code é 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/relatorios/tempo-medio-execucao",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "relatorios",
+                "tempo-medio-execucao"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:5001"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "clienteId",
+      "value": ""
+    },
+    {
+      "key": "veiculoId",
+      "value": ""
+    },
+    {
+      "key": "pecaId",
+      "value": ""
+    },
+    {
+      "key": "insumoId",
+      "value": ""
+    },
+    {
+      "key": "servicoId",
+      "value": ""
+    },
+    {
+      "key": "ordemServicoId",
+      "value": ""
+    },
+    {
+      "key": "orcamentoId",
+      "value": ""
+    },
+    {
+      "key": "externoToken",
+      "value": ""
+    },
+    {
+      "key": "linkAprovarExterno",
+      "value": ""
+    },
+    {
+      "key": "linkRecusarExterno",
+      "value": ""
+    },
+    {
+      "key": "ordemServicoStatus",
+      "value": ""
+    },
+    {
+      "key": "ordemServicoTotal",
+      "value": ""
+    }
+  ]
+}
