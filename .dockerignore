@@ -1,0 +1,15 @@
+.git
+.vs
+bin
+obj
+**/bin
+**/obj
+TestResults
+coverage
+.coverage
+*.user
+*.suo
+.env
+docker/.env
+README.md
+badges

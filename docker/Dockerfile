@@ -1,4 +1,6 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG DOTNET_VERSION=9.0
+
+FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS build
 WORKDIR /src
 
 COPY Oficina.sln ./
@@ -13,7 +15,7 @@ RUN dotnet restore Oficina.sln
 COPY . .
 RUN dotnet publish src/Oficina.Api/Oficina.Api.csproj -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION}
 WORKDIR /app
 
 COPY --from=build /app/publish .
