@@ -26,6 +26,7 @@ Projeto organizado com Clean Architecture, DDD e Use Cases:
 - FluentValidation
 - xUnit, Moq e Coverlet
 - Docker e Docker Compose
+- Kubernetes local com Minikube
 - smtp4dev
 - Swagger/OpenAPI
 - GitHub Actions
@@ -37,6 +38,7 @@ Pré-requisitos:
 - .NET SDK 9
 - Docker Desktop
 - SQL Server LocalDB ou SQL Server via Docker
+- kubectl e Minikube, para execução via Kubernetes local
 
 Variáveis principais:
 
@@ -48,7 +50,7 @@ Variáveis principais:
 | `RUN_MIGRATION` | Executa migrations na inicialização |
 | `AdminInicial__Nome` / `AdminInicial__Cpf` / `AdminInicial__Senha` | Bootstrap do primeiro admin |
 
-Subir com Docker:
+Subir com Docker Compose:
 
 ```powershell
 docker compose -f docker/docker-compose.yml up --build
@@ -66,6 +68,44 @@ Aplicar migrations manualmente:
 dotnet ef database update --project src/Oficina.Infrastructure --startup-project src/Oficina.Api
 ```
 
+### Executando Via Kubernetes Local (Minikube)
+
+Os manifests locais ficam em `k8s/local` e usam valores apenas de desenvolvimento. No Minikube, `RUN_MIGRATION=true` aplica migrations na inicialização da API para facilitar a avaliação local.
+
+```powershell
+minikube start
+minikube addons enable metrics-server
+minikube docker-env | Invoke-Expression
+docker build -t oficina-api:local -f docker/Dockerfile .
+kubectl apply -f k8s/local
+kubectl get pods -n oficina
+kubectl get svc -n oficina
+```
+
+Acessar API:
+
+```powershell
+kubectl port-forward svc/oficina-api 8080:80 -n oficina
+```
+
+Swagger: `http://localhost:8080/swagger`
+
+Acessar smtp4dev:
+
+```powershell
+kubectl port-forward svc/smtp4dev 5000:80 -n oficina
+```
+
+Web UI: `http://localhost:5000`
+
+Remover ambiente:
+
+```powershell
+kubectl delete -f k8s/local
+```
+
+O HPA em `k8s/local/hpa.yaml` depende do `metrics-server` habilitado no Minikube.
+
 Acessos principais:
 
 | Recurso | URL |
@@ -73,12 +113,15 @@ Acessos principais:
 | Swagger via Docker | `http://localhost:8080/swagger` |
 | Healthcheck via Docker | `http://localhost:8080/health` |
 | Swagger local HTTPS | `https://localhost:5001/swagger` |
+| Swagger via Minikube | `http://localhost:8080/swagger` após port-forward |
+| smtp4dev via Minikube | `http://localhost:5000` após port-forward |
 
 ## Integração De E-mail
 
 - O projeto usa smtp4dev para visualizar e-mails locais.
-- Web UI: `http://localhost:5000`.
-- SMTP no Docker: host `smtp4dev`, porta `25`.
+- Web UI via Docker Compose: `http://localhost:5000`.
+- SMTP no Docker Compose: host `smtp4dev`, porta `25`.
+- No Minikube, a API usa o Service `smtp4dev` dentro do cluster.
 - Os e-mails são usados no fluxo de aprovação/recusa externa de orçamento.
 
 ## Fluxos Principais
@@ -185,9 +228,13 @@ dotnet test --collect:"XPlat Code Coverage"
 
 Os testes cobrem regras de domínio, casos de uso, controllers e autorização.
 
-## Vídeo De Demonstração
+## Links Da Entrega
 
-TODO: inserir link do vídeo demonstrando Swagger, Postman, e-mail e testes.
+| Item | Link |
+| --- | --- |
+| Documentação da API | https://miro.com/app/board/uXjVGPRzlmM=/ |
+| Vídeo de Demonstração | https://www.youtube.com/watch?v=8kAxO5SFWiY |
+
 
 ## Observações Finais
 

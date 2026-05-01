@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smtp4dev
+  namespace: oficina
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: smtp4dev
+  template:
+    metadata:
+      labels:
+        app: smtp4dev
+    spec:
+      containers:
+        - name: smtp4dev
+          image: rnwood/smtp4dev:v3
+          ports:
+            - name: web
+              containerPort: 80
+            - name: smtp
+              containerPort: 25
+          env:
+            - name: ServerOptions__Urls
+              value: "http://*:80"
+            - name: ServerOptions__HostName
+              value: "smtp4dev"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
