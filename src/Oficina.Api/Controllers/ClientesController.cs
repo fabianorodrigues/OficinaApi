@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Api.Security;
 using Oficina.Application.DTO.Cadastro;
 using Oficina.Application.UseCases.Cadastro;
 using Oficina.Domain.Cadastro.ValueObjects;
@@ -8,7 +9,7 @@ namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/clientes")]
-[Authorize]
+[Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class ClientesController : ControllerBase
 {
     private readonly CadastrarClienteUseCase _cadastrar;

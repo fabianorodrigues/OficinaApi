@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Api.Security;
 using Oficina.Application.UseCases.Oficina;
 
 namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/orcamentos")]
-[Authorize]
+[Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class OrcamentosController : ControllerBase
 {
     private readonly ObterOrcamentoDetalhadoUseCase _obter;
@@ -31,6 +32,7 @@ public class OrcamentosController : ControllerBase
     }
 
     [HttpPost("{id:guid}/aprovar")]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Aprovar(Guid id, CancellationToken ct)
     {
         await _aprovar.Executar(id, ct);
@@ -38,6 +40,7 @@ public class OrcamentosController : ControllerBase
     }
 
     [HttpPost("{id:guid}/recusar")]
+    [Authorize(Policy = Policies.AdminOnly)]
     public async Task<IActionResult> Recusar(Guid id, CancellationToken ct)
     {
         await _recusar.Executar(id, ct);

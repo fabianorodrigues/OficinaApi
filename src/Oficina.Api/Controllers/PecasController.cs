@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Api.Security;
 using Oficina.Application.DTO.CatalogoEstoque;
 using Oficina.Application.UseCases.CatalogoEstoque;
 
@@ -7,7 +8,7 @@ namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/pecas")]
-[Authorize]
+[Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class PecasController : ControllerBase
 {
     private readonly CadastrarPecaUseCase _cadastrar;

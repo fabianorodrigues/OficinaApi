@@ -219,6 +219,44 @@ namespace Oficina.Infrastructure.Migrations
                     b.ToTable("OrdensServico", (string)null);
                 });
 
+            modelBuilder.Entity("Oficina.Domain.Seguranca.Funcionario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Cpf")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("nvarchar(11)");
+
+                    b.Property<DateTimeOffset>("DataCriacao")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Perfil")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SenhaHash")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Cpf")
+                        .IsUnique();
+
+                    b.ToTable("Funcionarios", (string)null);
+                });
+
             modelBuilder.Entity("Oficina.Domain.Cadastro.Cliente", b =>
                 {
                     b.OwnsOne("Oficina.Domain.Cadastro.ValueObjects.Contato", "Contato", b1 =>

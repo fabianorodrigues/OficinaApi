@@ -21,6 +21,12 @@ public class OficinaRepository : IOficinaRepository
               .OrderByDescending(x => x.DataCriacao)
               .ToListAsync(ct);
 
+    public async Task<IReadOnlyList<OrdemServico>> ListarOrdensServicoPorVeiculos(IReadOnlyCollection<Guid> veiculoIds, CancellationToken ct)
+        => await _db.OrdensServico
+              .Where(x => veiculoIds.Contains(x.VeiculoId))
+              .OrderByDescending(x => x.DataCriacao)
+              .ToListAsync(ct);
+
     public Task AdicionarOrdemServico(OrdemServico os, CancellationToken ct)
         => _db.OrdensServico.AddAsync(os, ct).AsTask();
 

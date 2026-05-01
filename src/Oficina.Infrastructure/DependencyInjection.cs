@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<ICadastroRepository, CadastroRepository>();
         services.AddScoped<ICatalogoEstoqueRepository, CatalogoEstoqueRepository>();
         services.AddScoped<IOficinaRepository, OficinaRepository>();
+        services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
         services.AddScoped<IEmailSender, MailKitEmailSender>();
 
         services.AddScoped<INotificadorCliente, NotificadorCliente>();

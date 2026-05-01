@@ -48,7 +48,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"usuario\": \"admin\",\n  \"senha\": \"admin\"\n}",
+              "raw": "{\n  \"cpf\": \"{{adminCpf}}\",\n  \"senha\": \"{{adminSenha}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -56,14 +56,14 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/funcionario",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "auth",
-                "login"
+                "funcionario"
               ]
             },
             "description": "Autenticação inicial. Salva automaticamente o token no environment/collection."
@@ -1999,6 +1999,14 @@
     },
     {
       "key": "token",
+      "value": ""
+    },
+    {
+      "key": "adminCpf",
+      "value": ""
+    },
+    {
+      "key": "adminSenha",
       "value": ""
     },
     {

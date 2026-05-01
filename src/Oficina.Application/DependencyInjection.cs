@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Oficina.Application.UseCases.Cadastro;
 using Oficina.Application.UseCases.CatalogoEstoque;
 using Oficina.Application.UseCases.Oficina;
+using Oficina.Application.UseCases.Seguranca;
+using Oficina.Application.Abstractions.Seguranca;
 
 namespace Oficina.Application;
 
@@ -52,6 +54,20 @@ public static class DependencyInjection
         services.AddScoped<ObterOrcamentoUseCase>();
         services.AddScoped<ObterOrcamentoDetalhadoUseCase>();
         services.AddScoped<RelatorioTempoMedioExecucaoUseCase>();
+        services.AddScoped<ListarMinhasOrdensServicoUseCase>();
+        services.AddScoped<AprovarMeuOrcamentoUseCase>();
+        services.AddScoped<RecusarMeuOrcamentoUseCase>();
+
+        // Seguranca
+        services.AddScoped<IClienteOwnershipService, ClienteOwnershipService>();
+        services.AddScoped<AutenticarClienteUseCase>();
+        services.AddScoped<AutenticarFuncionarioUseCase>();
+        services.AddScoped<CriarFuncionarioUseCase>();
+        services.AddScoped<ListarFuncionariosUseCase>();
+        services.AddScoped<ObterFuncionarioUseCase>();
+        services.AddScoped<AtualizarFuncionarioUseCase>();
+        services.AddScoped<AlterarSenhaFuncionarioUseCase>();
+        services.AddScoped<AlterarStatusFuncionarioUseCase>();
 
         return services;
     }
