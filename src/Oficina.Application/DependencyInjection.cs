@@ -17,20 +17,28 @@ public static class DependencyInjection
         // Cadastro
         services.AddScoped<CadastrarClienteUseCase>();
         services.AddScoped<AtualizarClienteUseCase>();
+        services.AddScoped<ListarClientesUseCase>();
         services.AddScoped<CadastrarVeiculoUseCase>();
         services.AddScoped<AtualizarVeiculoUseCase>();
         services.AddScoped<ObterClienteUseCase>();
+        services.AddScoped<ListarVeiculosUseCase>();
         services.AddScoped<ObterVeiculoUseCase>();
         services.AddScoped<ListarVeiculosPorClienteUseCase>();
 
         // Catálogo & Estoque
         services.AddScoped<CadastrarServicoUseCase>();
+        services.AddScoped<ListarServicosUseCase>();
+        services.AddScoped<ObterServicoUseCase>();
+        services.AddScoped<AtualizarServicoUseCase>();
         services.AddScoped<CadastrarPecaUseCase>();
+        services.AddScoped<ListarPecasUseCase>();
         services.AddScoped<ObterPecaUseCase>();
         services.AddScoped<AtualizarPecaUseCase>();
         services.AddScoped<CadastrarInsumoUseCase>();
+        services.AddScoped<ListarInsumosUseCase>();
         services.AddScoped<ObterInsumoUseCase>();
         services.AddScoped<AtualizarInsumoUseCase>();
+        services.AddScoped<ListarEstoqueUseCase>();
         services.AddScoped<ObterEstoquePecaUseCase>();
         services.AddScoped<ObterEstoqueInsumoUseCase>();
         services.AddScoped<AjustarEstoquePecaUseCase>();

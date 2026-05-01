@@ -29,6 +29,22 @@ public class Servico : AgregadoRaiz
         MaoDeObra = maoDeObra;
     }
 
+    public void SubstituirPecas(IEnumerable<(Guid pecaId, int quantidade)> pecas)
+    {
+        _pecas.Clear();
+
+        foreach (var (pecaId, quantidade) in pecas)
+            AdicionarPeca(pecaId, quantidade);
+    }
+
+    public void SubstituirInsumos(IEnumerable<(Guid insumoId, int quantidade)> insumos)
+    {
+        _insumos.Clear();
+
+        foreach (var (insumoId, quantidade) in insumos)
+            AdicionarInsumo(insumoId, quantidade);
+    }
+
     public void AdicionarPeca(Guid pecaId, int quantidade)
     {
         if (pecaId == Guid.Empty) throw new ArgumentException("Peça inválida.");

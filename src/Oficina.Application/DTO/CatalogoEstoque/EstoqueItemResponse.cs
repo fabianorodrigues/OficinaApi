@@ -1,5 +1,11 @@
 namespace Oficina.Application.DTO.CatalogoEstoque;
 
+public sealed class EstoqueResponse
+{
+    public IReadOnlyList<EstoquePecaResponse> Pecas { get; init; } = [];
+    public IReadOnlyList<EstoqueInsumoResponse> Insumos { get; init; } = [];
+}
+
 public sealed class EstoquePecaResponse
 {
     public Guid PecaId { get; init; }

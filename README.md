@@ -1,415 +1,198 @@
-# OficinaApi — Gestão de Ordens de Serviço Automotivas
+# Oficina API
 
-API em .NET 9 para gestão do ciclo de Ordens de Serviço (OS), com orçamento, aprovação interna/externa, catálogo, estoque e rastreabilidade de status.
-
-## 1) Visão geral
-
-A solução cobre o ciclo completo de operação da oficina, desde cadastro e catálogo até execução de serviços e relatórios.
-
-Principais capacidades:
-- gestão de **Clientes** e **Veículos** com validações de domínio (incluindo CPF/CNPJ);
-- gestão de **Peças**, **Insumos**, **Serviços** e **Estoque**;
-- gestão de **Ordens de Serviço** com abertura completa, classificação, diagnóstico, orçamento, execução e entrega;
-- aprovação/recusa interna e externa de orçamento por link de e-mail;
-- controle da origem da atualização de status (**Interna** / **Externa**);
-- relatórios operacionais (tempo médio de execução).
-
-## 2) Arquitetura
-
-A aplicação segue **Clean Architecture** com organização modular e conceitos de **DDD**, priorizando separação de responsabilidades, desacoplamento e testabilidade.
-
-| Camada | Responsabilidade |
-|---|---|
-| **Oficina.Api** | Endpoints HTTP, autenticação JWT, Swagger e middleware global de exceções |
-| **Oficina.Application** | UseCases, orquestração de fluxos, DTOs, validações e contratos |
-| **Oficina.Domain** | Entidades, Value Objects e regras de negócio |
-| **Oficina.Infrastructure** | Persistência com EF Core/SQL Server, repositórios e envio de e-mail |
-
-## 3) Tecnologias utilizadas
-
-- .NET 9 / C#
-- ASP.NET Core Web API
-- Entity Framework Core 9
-- SQL Server 2022
-- JWT Bearer
-- MailKit + smtp4dev
-- xUnit + Moq + Coverlet
-
-## 4) Como executar o projeto
-
-Você pode rodar de **2 formas**:
-- **Opção A: Docker Compose (API + SQL Server + smtp4dev)**
-- **Opção B: Kubernetes local com Minikube**
-
-### Opção A) Docker Compose
-
-#### Pré-requisitos
-- Docker + Docker Compose
-- .NET SDK 9 e `dotnet-ef`, apenas se você optar por aplicar migrations manualmente fora do container
-
-#### 1. Conferir variáveis locais
-O arquivo `docker/.env.example` possui valores fictícios para desenvolvimento local. Ele não contém secrets reais.
-
-Para executar sem criar arquivo local:
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml up --build
-```
-
-Para customizar valores:
-```bash
-cp docker/.env.example docker/.env
-docker compose --env-file docker/.env -f docker/docker-compose.yml up --build
-```
-
-Principais variáveis:
-- `COMPOSE_PROJECT_NAME`: nome do projeto Compose usado para agrupar rede e volumes
-- `API_IMAGE_REPOSITORY`: nome/repositório da imagem da API
-- `API_IMAGE_TAG`: tag local da imagem da API
-- `MSSQL_SA_PASSWORD`: senha local forte do usuário `sa`
-- `JWT_SECRET`: segredo JWT local com pelo menos 32 caracteres
-- `RUN_MIGRATION`: `true` no `.env.example` para facilitar o primeiro boot local; use `false` fora de desenvolvimento
-- `ADMIN_INICIAL_*`: credenciais fictícias do admin local de bootstrap
-
-#### 2. Build da imagem da API
-Antes do build, você pode validar a configuração renderizada:
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml config
-```
-
-Resultado esperado:
-```text
-name: oficina-api
-image: oficina-api:local
-container_name: oficina-api
-```
-
-Build manual:
-```bash
-docker build -t oficina-api:local -f docker/Dockerfile .
-```
-
-Build via Compose:
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml build api
-```
-
-Por padrão, o Compose gera a imagem `oficina-api:local`. Para publicar em registry ou versionar builds, ajuste:
-```env
-API_IMAGE_REPOSITORY=seu-registry/oficina-api
-API_IMAGE_TAG=v1.0.0
-```
-
-Evite depender de `latest` em deploys versionados. Prefira tags imutáveis como SHA do commit, versão semântica ou número do build.
-
-#### 3. Subir API, SQL Server e smtp4dev
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml up --build
-```
-
-#### 4. Acessar os serviços
-- Swagger: `http://localhost:8080/swagger`
-- Healthcheck da API: `http://localhost:8080/health`
-- smtp4dev: `http://localhost:5000`
-- SQL Server local: `localhost,1433`
-
-#### 5. Aplicar migrations
-No fluxo local recomendado, `docker/.env.example` define `RUN_MIGRATION=true`, então as migrations são aplicadas no startup da API para facilitar a primeira execução.
-
-Em produção, Kubernetes ou ambientes compartilhados, mantenha `RUN_MIGRATION=false` e aplique migrations de forma controlada.
-
-Opção manual, via host:
-```bash
-dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj --connection "Server=localhost,1433;Database=OficinaDb;User Id=sa;Password=Oficina_dev_2026!;TrustServerCertificate=True;"
-```
-
-Para forçar migrations automáticas sem usar `.env.example`:
-```bash
-RUN_MIGRATION=true docker compose -f docker/docker-compose.yml up --build
-```
-
-No PowerShell:
-```powershell
-$env:RUN_MIGRATION="true"; docker compose -f docker/docker-compose.yml up --build
-```
-
-#### 6. Login local de funcionário/admin
-Depois das migrations, o bootstrap cria um admin local fictício se `ADMIN_INICIAL_ENABLED=true`:
-
-```json
-{
-  "cpf": "39053344705",
-  "senha": "Senha@123"
-}
-```
-
-Endpoint: `POST http://localhost:8080/api/auth/funcionario`
-
-#### 7. Parar e limpar containers
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml down
-```
-
-Para remover também os volumes locais do SQL Server e smtp4dev:
-```bash
-docker compose --env-file docker/.env.example -f docker/docker-compose.yml down -v
-```
-
-#### 8. Troubleshooting rápido
-- Porta ocupada: altere `API_HTTP_PORT`, `SQLSERVER_PORT`, `SMTP4DEV_WEB_PORT` ou `SMTP4DEV_SMTP_PORT` no arquivo `.env`.
-- Nome `docker` aparecendo no Compose: use este arquivo atualizado, que fixa o projeto como `oficina-api`.
-- SQL Server demorando: aguarde o healthcheck; o primeiro boot pode levar alguns minutos.
-- Erro de senha SQL: use senha forte e, se trocar depois de criar o volume, remova o volume com `down -v`.
-- Migrations: para execução local simples use `RUN_MIGRATION=true`; para produção use `false` e rode migrations de forma controlada.
-- Swagger: fica exposto no fluxo local; restrinja por ambiente antes de publicar a API.
-
-> Os valores do compose e de `docker/.env.example` são apenas para desenvolvimento local. Em produção ou Kubernetes, configure secrets e variáveis por ambiente.
-> Se você já criou volumes antigos com prefixo `docker_`, eles não serão reutilizados automaticamente após a troca para `oficina-api_`.
-
-### Opção B) Kubernetes local com Minikube
-
-> Fluxo simplificado para subir **infra + API** no Minikube, usando a imagem da API direto do Docker Hub.
-
-#### Pré-requisitos
-- Docker
-- Minikube
-- kubectl
-
-#### 1. Iniciar o cluster local
-```bash
-minikube start
-```
-
-#### 2. Aplicar os manifestos Kubernetes
-```bash
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/secret.yaml
-kubectl apply -f k8s/sqlserver-deployment.yaml
-kubectl apply -f k8s/sqlserver-service.yaml
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/service.yaml
-```
-
-#### 3. Validar se os pods estão prontos
-```bash
-kubectl get pods
-```
-
-#### 4. Obter a URL local da API
-```bash
-minikube service oficina-api-service --url
-```
-
-#### 5. Abrir o Swagger
-Com a URL retornada no passo anterior, acesse:
-
-```text
-http://<URL_DO_MINIKUBE>/swagger
-```
-
-Exemplo:
-```text
-http://127.0.0.1:30007/swagger
-```
-
-#### (Opcional) Limpar ambiente
-```bash
-kubectl delete -f k8s/service.yaml
-kubectl delete -f k8s/deployment.yaml
-kubectl delete -f k8s/sqlserver-service.yaml
-kubectl delete -f k8s/sqlserver-deployment.yaml
-kubectl delete -f k8s/secret.yaml
-kubectl delete -f k8s/configmap.yaml
-```
-
-## 5) Integração de e-mail (smtp4dev)
-
-A integração externa de aprovação/recusa de orçamento usa token por link de e-mail.
-
-- Interface smtp4dev: `http://localhost:5000`
-- SMTP local (API fora de container): `localhost:25`
-- SMTP Docker (API em container): `smtp4dev:25`
-- Base URL aprovação/recusa (Development): `https://localhost:49323`
-- Base URL aprovação/recusa (Docker): `http://localhost:8080`
-
-Configurações para fluxo de aprovação e recusa de orçamento por e-mail:
-- `EmailSettings:SmtpHost`
-- `EmailSettings:SmtpPort`
-- `EmailSettings:EnableSsl`
-- `EmailSettings:From`
-- `EmailSettings:BaseUrlSmtp`
-- `EmailSettings:BaseUrlAprovaRecusaOrcamento`
-
-## 6) Fluxos principais
-
-### 6.1 Abertura de OS
-- endpoint único: `POST /api/ordens-servico`;
-- cria/reaproveita cliente e veículo;
-- exige ao menos 1 serviço e aceita peças/insumos;
-- calcula o total do orçamento na abertura;
-- mantém a OS em **Recebida**.
-
-### 6.2 Classificação
-- endpoint: `POST /api/ordens-servico/{id}/classificar`;
-- preventiva: direciona para **AguardandoAprovacao**;
-- corretiva: direciona para **EmDiagnostico**.
-
-### 6.3 Aprovação externa via e-mail
-- `GET /api/orcamentos/acoes-externas/aprovar?token=...`
-- `GET /api/orcamentos/acoes-externas/recusar?token=...`
-- processamento da ação externa atualiza orçamento e OS;
-- origem da atualização registrada como **Externa**.
-
-## 7) Rotas da API (completas)
-
-| Método | Rota | Autenticação |
-|---|---|---|
-| POST | `/api/auth/login` | Pública |
-| POST | `/api/clientes` | JWT |
-| GET | `/api/clientes/{id}` | JWT |
-| PUT | `/api/clientes/{id}` | JWT |
-| POST | `/api/veiculos` | JWT |
-| GET | `/api/veiculos/{id}` | JWT |
-| PUT | `/api/veiculos/{id}` | JWT |
-| GET | `/api/veiculos/por-cliente/{clienteId}` | JWT |
-| POST | `/api/pecas` | JWT |
-| GET | `/api/pecas/{id}` | JWT |
-| PUT | `/api/pecas/{id}` | JWT |
-| POST | `/api/insumos` | JWT |
-| GET | `/api/insumos/{id}` | JWT |
-| PUT | `/api/insumos/{id}` | JWT |
-| POST | `/api/servicos` | JWT |
-| GET | `/api/estoque/pecas/{pecaId}` | JWT |
-| POST | `/api/estoque/pecas/{pecaId}/ajustar` | JWT |
-| GET | `/api/estoque/insumos/{insumoId}` | JWT |
-| POST | `/api/estoque/insumos/{insumoId}/ajustar` | JWT |
-| POST | `/api/ordens-servico` | JWT |
-| POST | `/api/ordens-servico/preventiva` | JWT |
-| POST | `/api/ordens-servico/corretiva` | JWT |
-| POST | `/api/ordens-servico/{id}/classificar` | JWT |
-| POST | `/api/ordens-servico/{id}/diagnosticos` | JWT |
-| GET | `/api/ordens-servico/{id}/status` | JWT |
-| GET | `/api/ordens-servico/{id}` | JWT |
-| GET | `/api/ordens-servico` | JWT |
-| POST | `/api/ordens-servico/{id}/finalizar` | JWT |
-| POST | `/api/ordens-servico/{id}/entregar` | JWT |
-| GET | `/api/orcamentos/{id}` | JWT |
-| POST | `/api/orcamentos/{id}/aprovar` | JWT |
-| POST | `/api/orcamentos/{id}/recusar` | JWT |
-| GET | `/api/orcamentos/acoes-externas/aprovar?token=...` | Pública |
-| GET | `/api/orcamentos/acoes-externas/recusar?token=...` | Pública |
-| GET | `/api/relatorios/tempo-medio-execucao` | JWT |
-
-### 7.1 Collection Postman (cenários de teste)
-
-- Link da collection/environment: [Postman](./postman/OficinaApi.postman_collection.json)
-- Cenários incluídos:
-  - autenticação (login com captura automática de JWT);
-  - cadastro base (cliente e veículo);
-  - fluxo de OS (abertura, classificação e consulta de status);
-  - orçamento (aprovar e recusar);
-  - relatório (tempo médio de execução).
-
-
-## 8) Testes e cobertura
 ![Coverage](./badges/badge_combined.svg)
 
-### Rodar testes
-```bash
+## Visão Geral
+
+API para gestão de oficina mecânica, cobrindo clientes, veículos, serviços, peças, insumos, estoque, ordens de serviço, orçamentos, autenticação e perfis de acesso.
+
+## Arquitetura
+
+Projeto organizado com Clean Architecture, DDD e Use Cases:
+
+- `Oficina.Api`: controllers, autenticação, autorização, Swagger e middlewares.
+- `Oficina.Application`: casos de uso, DTOs, validações e contratos.
+- `Oficina.Domain`: entidades, value objects, enums e regras de negócio.
+- `Oficina.Infrastructure`: EF Core, repositórios, e-mail e persistência.
+- `Oficina.Tests`: testes de domínio, aplicação, API e segurança.
+
+## Tecnologias Utilizadas
+
+- .NET 9
+- ASP.NET Core
+- Entity Framework Core
+- SQL Server
+- JWT Bearer
+- FluentValidation
+- xUnit, Moq e Coverlet
+- Docker e Docker Compose
+- smtp4dev
+- Swagger/OpenAPI
+- GitHub Actions
+
+## Como Executar
+
+Pré-requisitos:
+
+- .NET SDK 9
+- Docker Desktop
+- SQL Server LocalDB ou SQL Server via Docker
+
+Variáveis principais:
+
+| Variável | Uso |
+| --- | --- |
+| `ConnectionStrings__SqlServer` | Conexão com SQL Server |
+| `Jwt__Secret` | Chave JWT com ao menos 32 caracteres |
+| `Jwt__Issuer` / `Jwt__Audience` | Emissor e audiência do token |
+| `RUN_MIGRATION` | Executa migrations na inicialização |
+| `AdminInicial__Nome` / `AdminInicial__Cpf` / `AdminInicial__Senha` | Bootstrap do primeiro admin |
+
+Subir com Docker:
+
+```powershell
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Executar localmente:
+
+```powershell
+dotnet run --project src/Oficina.Api/Oficina.Api.csproj
+```
+
+Aplicar migrations manualmente:
+
+```powershell
+dotnet ef database update --project src/Oficina.Infrastructure --startup-project src/Oficina.Api
+```
+
+Acessos principais:
+
+| Recurso | URL |
+| --- | --- |
+| Swagger via Docker | `http://localhost:8080/swagger` |
+| Healthcheck via Docker | `http://localhost:8080/health` |
+| Swagger local HTTPS | `https://localhost:5001/swagger` |
+
+## Integração De E-mail
+
+- O projeto usa smtp4dev para visualizar e-mails locais.
+- Web UI: `http://localhost:5000`.
+- SMTP no Docker: host `smtp4dev`, porta `25`.
+- Os e-mails são usados no fluxo de aprovação/recusa externa de orçamento.
+
+## Fluxos Principais
+
+- Cliente autentica por CPF e acessa apenas as próprias OS/orçamentos.
+- Funcionário/Admin autentica por CPF e senha.
+- Funcionário cadastra clientes, veículos, catálogo e estoque.
+- OS é aberta com cliente, veículo, serviços, peças e insumos.
+- OS é classificada como `Preventiva` ou `Corretiva`.
+- Preventiva segue para orçamento; corretiva exige diagnóstico antes do orçamento.
+- Aprovação do orçamento inicia execução e baixa estoque.
+- OS pode ser finalizada e entregue.
+- Admin gerencia funcionários e administradores.
+
+## Rotas Da API
+
+| Grupo | Método | Endpoint | Perfil | Descrição |
+| --- | --- | --- | --- | --- |
+| Auth | POST | `/api/auth/clientes` | Público | Login do cliente por CPF |
+| Auth | POST | `/api/auth/funcionarios` | Público | Login interno por CPF e senha |
+| Cliente | GET | `/api/minhas-ordens-servico` | Cliente | Lista OS do cliente autenticado |
+| Cliente | GET | `/api/minhas-ordens-servico/{id}` | Cliente | Detalha OS própria |
+| Cliente | GET | `/api/minhas-ordens-servico/{id}/status` | Cliente | Consulta status de OS própria |
+| Cliente | GET | `/api/meus-orcamentos/{id}` | Cliente | Consulta orçamento próprio |
+| Cliente | POST | `/api/meus-orcamentos/{id}/aprovar` | Cliente | Aprova orçamento próprio |
+| Cliente | POST | `/api/meus-orcamentos/{id}/recusar` | Cliente | Recusa orçamento próprio |
+| Admin | GET | `/api/admin/funcionarios` | Admin | Lista funcionários |
+| Admin | POST | `/api/admin/funcionarios` | Admin | Cria funcionário/admin |
+| Admin | GET | `/api/admin/funcionarios/{id}` | Admin | Consulta funcionário |
+| Admin | PUT | `/api/admin/funcionarios/{id}` | Admin | Atualiza funcionário |
+| Admin | PATCH | `/api/admin/funcionarios/{id}/alterar-senha` | Admin | Altera senha |
+| Admin | PATCH | `/api/admin/funcionarios/{id}/ativar` | Admin | Ativa usuário |
+| Admin | PATCH | `/api/admin/funcionarios/{id}/inativar` | Admin | Inativa usuário |
+| Cadastro | GET | `/api/clientes` | Funcionário/Admin | Lista clientes |
+| Cadastro | POST | `/api/clientes` | Funcionário/Admin | Cria cliente |
+| Cadastro | GET | `/api/clientes/{id}` | Funcionário/Admin | Consulta cliente |
+| Cadastro | PUT | `/api/clientes/{id}` | Funcionário/Admin | Atualiza cliente |
+| Cadastro | GET | `/api/veiculos` | Funcionário/Admin | Lista veículos |
+| Cadastro | POST | `/api/veiculos` | Funcionário/Admin | Cria veículo |
+| Cadastro | GET | `/api/veiculos/{id}` | Funcionário/Admin | Consulta veículo |
+| Cadastro | PUT | `/api/veiculos/{id}` | Funcionário/Admin | Atualiza veículo |
+| Catálogo | GET | `/api/servicos` | Funcionário/Admin | Lista serviços |
+| Catálogo | POST | `/api/servicos` | Funcionário/Admin | Cria serviço |
+| Catálogo | GET | `/api/servicos/{id}` | Funcionário/Admin | Consulta serviço |
+| Catálogo | PUT | `/api/servicos/{id}` | Funcionário/Admin | Atualiza serviço |
+| Catálogo | GET | `/api/pecas` | Funcionário/Admin | Lista peças |
+| Catálogo | POST | `/api/pecas` | Funcionário/Admin | Cria peça |
+| Catálogo | GET | `/api/pecas/{id}` | Funcionário/Admin | Consulta peça |
+| Catálogo | PUT | `/api/pecas/{id}` | Funcionário/Admin | Atualiza peça |
+| Catálogo | GET | `/api/insumos` | Funcionário/Admin | Lista insumos |
+| Catálogo | POST | `/api/insumos` | Funcionário/Admin | Cria insumo |
+| Catálogo | GET | `/api/insumos/{id}` | Funcionário/Admin | Consulta insumo |
+| Catálogo | PUT | `/api/insumos/{id}` | Funcionário/Admin | Atualiza insumo |
+| Estoque | GET | `/api/estoque` | Funcionário/Admin | Consulta estoque |
+| Estoque | GET | `/api/estoque/pecas/{pecaId}` | Funcionário/Admin | Consulta estoque da peça |
+| Estoque | POST | `/api/estoque/pecas/{pecaId}/ajustar` | Funcionário/Admin | Ajusta estoque da peça |
+| Estoque | GET | `/api/estoque/insumos/{insumoId}` | Funcionário/Admin | Consulta estoque do insumo |
+| Estoque | POST | `/api/estoque/insumos/{insumoId}/ajustar` | Funcionário/Admin | Ajusta estoque do insumo |
+| OS | GET | `/api/ordens-servico` | Funcionário/Admin | Lista OS abertas |
+| OS | POST | `/api/ordens-servico` | Funcionário/Admin | Abre OS completa |
+| OS | GET | `/api/ordens-servico/{id}` | Funcionário/Admin | Detalha OS |
+| OS | GET | `/api/ordens-servico/{id}/status` | Funcionário/Admin | Consulta status |
+| OS | POST | `/api/ordens-servico/{id}/classificar` | Funcionário/Admin | Classifica OS |
+| OS | POST | `/api/ordens-servico/{id}/diagnostico` | Funcionário/Admin | Registra diagnóstico |
+| OS | POST | `/api/ordens-servico/{id}/finalizar` | Funcionário/Admin | Finaliza OS |
+| OS | POST | `/api/ordens-servico/{id}/entregar` | Funcionário/Admin | Entrega veículo |
+| Orçamentos | GET | `/api/orcamentos/{id}` | Funcionário/Admin | Consulta orçamento |
+| Orçamentos | POST | `/api/orcamentos/{id}/aprovar` | Funcionário/Admin | Aprova orçamento |
+| Orçamentos | POST | `/api/orcamentos/{id}/recusar` | Funcionário/Admin | Recusa orçamento |
+| Orçamentos | GET | `/api/orcamentos/acoes-externas/aprovar?token=...` | Público | Aprovação externa |
+| Orçamentos | GET | `/api/orcamentos/acoes-externas/recusar?token=...` | Público | Recusa externa |
+| Relatórios | GET | `/api/relatorios/tempo-medio-execucao` | Funcionário/Admin | Tempo médio de execução |
+| Health | GET | `/health` | Público | Status da API |
+
+## Collection Postman
+
+Arquivos:
+
+- `postman/OficinaAPI-cenarios.postman_collection.json`
+- `postman/OficinaAPI-cenarios.postman_environment.json`
+- `postman/OficinaAPI-seguranca.postman_collection.json`
+
+Uso:
+
+1. Importe a collection e o environment no Postman.
+2. Configure `baseUrl`, `adminCpf` e `adminSenha`.
+3. Execute pelo Collection Runner.
+
+A collection gera dados, autentica usuários e preenche tokens/IDs automaticamente.
+
+## Testes E Cobertura
+
+Rodar testes:
+
+```powershell
 dotnet test
 ```
 
-### Gerar cobertura de testes
-```bash
+Gerar cobertura:
+
+```powershell
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-Saída de cobertura (formato Cobertura):
-- `tests/Oficina.Tests/TestResults/**/coverage.cobertura.xml`
+Os testes cobrem regras de domínio, casos de uso, controllers e autorização.
 
-## 9) Segurança
+## Vídeo De Demonstração
 
-- autenticação JWT para endpoints internos;
-- endpoints externos com token e expiração;
-- validação de CPF/CNPJ com dígitos verificadores no domínio;
-- tratamento global de exceções na API.
+TODO: inserir link do vídeo demonstrando Swagger, Postman, e-mail e testes.
 
-### 9.1 Segurança por perfis
+## Observações Finais
 
-A API possui três perfis no JWT:
-
-| Perfil | Autenticação | Acesso |
-| --- | --- | --- |
-| Cliente | `POST /api/auth/cliente` com CPF cadastrado | Somente recursos próprios pelas rotas `api/minhas-*` e `api/meus-*` |
-| Funcionário | `POST /api/auth/funcionario` com CPF + senha | Rotas internas da oficina, exceto rotas `AdminOnly` |
-| Admin | `POST /api/auth/funcionario` com CPF + senha | Tudo que funcionário acessa e endpoints administrativos |
-
-Claims emitidas:
-- `sub`
-- `cpf`
-- `role`
-- `clienteId`, quando o perfil for Cliente
-- `funcionarioId`, quando o perfil for Funcionário ou Admin
-
-Configuração JWT:
-```json
-{
-  "Jwt": {
-    "Issuer": "Oficina.Api",
-    "Audience": "Oficina.Api",
-    "Secret": "CHAVE_COM_PELO_MENOS_32_CARACTERES",
-    "ExpirationMinutes": 120
-  }
-}
-```
-
-Admin inicial:
-```json
-{
-  "AdminInicial": {
-    "Enabled": true,
-    "Nome": "Admin Local",
-    "Cpf": "39053344705",
-    "Senha": "Senha@123"
-  }
-}
-```
-
-O admin inicial é criado apenas se `AdminInicial` estiver habilitado em ambiente de desenvolvimento/homologação ou por configuração explícita, e somente quando não existir funcionário/admin com o CPF informado. A senha é armazenada como hash e não há credencial `admin/admin` fixa no código.
-
-Endpoints administrativos `AdminOnly`:
-- `POST /api/admin/funcionarios`
-- `GET /api/admin/funcionarios`
-- `GET /api/admin/funcionarios/{id}`
-- `PUT /api/admin/funcionarios/{id}`
-- `PATCH /api/admin/funcionarios/{id}/alterar-senha`
-- `PATCH /api/admin/funcionarios/{id}/ativar`
-- `PATCH /api/admin/funcionarios/{id}/inativar`
-
-Rotas do cliente autenticado:
-- `GET /api/minhas-ordens-servico`
-- `GET /api/minhas-ordens-servico/{id}`
-- `GET /api/minhas-ordens-servico/{id}/status`
-- `GET /api/meus-orcamentos/{id}`
-- `POST /api/meus-orcamentos/{id}/aprovar`
-- `POST /api/meus-orcamentos/{id}/recusar`
-
-## 10) Vídeo de demonstração
-
-- [Vídeo](https://youtu.be/8kAxO5SFWiY)
-
-## 11) Evolução contínua da solução (Fase 1 → Fase 2)
-
-- abertura completa da OS (cliente, veículo, serviços, peças e insumos);
-- status inicial **Recebida** e classificação posterior;
-- integração externa de aprovação/recusa via e-mail;
-- rastreabilidade de origem de status (Interna/Externa);
-- listagem de OS com filtro e ordenação;
-- validação de CPF/CNPJ reforçada;
-- controllers finos com lógica concentrada em UseCases;
-- cobertura de testes atualizada.
-
-## 12) Observações finais
-
-- README focado na solução como um todo, com navegação rápida para avaliação técnica.
-- O fluxo completo de demonstração prática está no vídeo.
-- Material complementar: [Miro do projeto](https://miro.com/app/board/uXjVGPRzlmM=/).
+- Projeto acadêmico.
+- Valores locais não devem ser usados em produção.
+- Segredos devem ser configurados por variáveis de ambiente.
+- O banco usa migrations do Entity Framework Core.
+- O primeiro admin deve ser criado via bootstrap/configuração segura.

@@ -11,21 +11,31 @@ namespace Oficina.Api.Controllers;
 [Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class EstoqueController : ControllerBase
 {
+    private readonly ListarEstoqueUseCase _listar;
     private readonly ObterEstoquePecaUseCase _obterPeca;
     private readonly ObterEstoqueInsumoUseCase _obterInsumo;
     private readonly AjustarEstoquePecaUseCase _ajustarPeca;
     private readonly AjustarEstoqueInsumoUseCase _ajustarInsumo;
 
     public EstoqueController(
+        ListarEstoqueUseCase listar,
         ObterEstoquePecaUseCase obterPeca,
         ObterEstoqueInsumoUseCase obterInsumo,
         AjustarEstoquePecaUseCase ajustarPeca,
         AjustarEstoqueInsumoUseCase ajustarInsumo)
     {
+        _listar = listar;
         _obterPeca = obterPeca;
         _obterInsumo = obterInsumo;
         _ajustarPeca = ajustarPeca;
         _ajustarInsumo = ajustarInsumo;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+    {
+        var estoque = await _listar.Executar(ct);
+        return Ok(estoque);
     }
 
     [HttpGet("pecas/{pecaId:guid}")]

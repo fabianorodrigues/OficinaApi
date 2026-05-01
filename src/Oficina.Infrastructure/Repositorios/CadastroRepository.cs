@@ -10,6 +10,9 @@ public class CadastroRepository : ICadastroRepository
     private readonly OficinaDbContext _db;
     public CadastroRepository(OficinaDbContext db) => _db = db;
 
+    public async Task<IReadOnlyList<Cliente>> ListarClientes(CancellationToken ct)
+        => await _db.Clientes.OrderBy(x => x.Nome).ThenBy(x => x.Id).ToListAsync(ct);
+
     public Task<Cliente?> ObterCliente(Guid id, CancellationToken ct)
         => _db.Clientes.FirstOrDefaultAsync(x => x.Id == id, ct);
 
@@ -21,6 +24,9 @@ public class CadastroRepository : ICadastroRepository
 
     public Task AdicionarCliente(Cliente cliente, CancellationToken ct)
         => _db.Clientes.AddAsync(cliente, ct).AsTask();
+
+    public async Task<IReadOnlyList<Veiculo>> ListarVeiculos(CancellationToken ct)
+        => await _db.Veiculos.OrderBy(x => x.Placa.Valor).ThenBy(x => x.Id).ToListAsync(ct);
 
     public Task<Veiculo?> ObterVeiculo(Guid id, CancellationToken ct)
         => _db.Veiculos.FirstOrDefaultAsync(x => x.Id == id, ct);

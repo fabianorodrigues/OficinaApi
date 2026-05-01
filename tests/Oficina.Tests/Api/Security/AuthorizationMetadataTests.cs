@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Oficina.Api.Controllers;
 using Oficina.Api.Security;
 using Xunit;
@@ -32,12 +33,29 @@ public class AuthorizationMetadataTests
     }
 
     [Fact]
-    public void OrcamentosAprovarRecusar_DeveSerAdminOnly()
+    public void OrcamentosController_DeveSerFuncionarioOuAdmin()
     {
-        var aprovar = typeof(OrcamentosController).GetMethod(nameof(OrcamentosController.Aprovar))!;
-        var recusar = typeof(OrcamentosController).GetMethod(nameof(OrcamentosController.Recusar))!;
+        var attr = Assert.IsType<AuthorizeAttribute>(
+            Attribute.GetCustomAttribute(typeof(OrcamentosController), typeof(AuthorizeAttribute)));
 
-        Assert.Equal(Policies.AdminOnly, aprovar.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true).Cast<AuthorizeAttribute>().Single().Policy);
-        Assert.Equal(Policies.AdminOnly, recusar.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true).Cast<AuthorizeAttribute>().Single().Policy);
+        Assert.Equal(Policies.FuncionarioOuAdmin, attr.Policy);
+    }
+
+    [Fact]
+    public void AuthController_DeveExporRotasPlurais()
+    {
+        var cliente = typeof(AuthController).GetMethod(nameof(AuthController.LoginCliente))!;
+        var funcionario = typeof(AuthController).GetMethod(nameof(AuthController.LoginFuncionario))!;
+
+        Assert.Equal("clientes", cliente.GetCustomAttributes(typeof(HttpPostAttribute), inherit: true).Cast<HttpPostAttribute>().Single().Template);
+        Assert.Equal("funcionarios", funcionario.GetCustomAttributes(typeof(HttpPostAttribute), inherit: true).Cast<HttpPostAttribute>().Single().Template);
+    }
+
+    [Fact]
+    public void OrdensServicoDiagnostico_DeveSerSingular()
+    {
+        var metodo = typeof(OrdensServicoController).GetMethod(nameof(OrdensServicoController.RegistrarDiagnostico))!;
+
+        Assert.Equal("{id:guid}/diagnostico", metodo.GetCustomAttributes(typeof(HttpPostAttribute), inherit: true).Cast<HttpPostAttribute>().Single().Template);
     }
 }

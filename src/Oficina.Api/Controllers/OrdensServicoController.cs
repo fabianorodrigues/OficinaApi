@@ -12,8 +12,6 @@ namespace Oficina.Api.Controllers;
 public class OrdensServicoController : ControllerBase
 {
     private readonly AbrirOrdemServicoUseCase _abrirOrdemServico;
-    private readonly CriarOsPreventivaUseCase _criarPreventiva;
-    private readonly CriarOsCorretivaUseCase _criarCorretiva;
     private readonly RegistrarDiagnosticoUseCase _registrarDiagnostico;
     private readonly ClassificarOrdemServicoUseCase _classificar;
     private readonly ObterStatusOrdemServicoUseCase _obterStatus;
@@ -24,8 +22,6 @@ public class OrdensServicoController : ControllerBase
 
     public OrdensServicoController(
         AbrirOrdemServicoUseCase abrirOrdemServico,
-        CriarOsPreventivaUseCase criarPreventiva,
-        CriarOsCorretivaUseCase criarCorretiva,
         RegistrarDiagnosticoUseCase registrarDiagnostico,
         ClassificarOrdemServicoUseCase classificar,
         ObterStatusOrdemServicoUseCase obterStatus,
@@ -35,8 +31,6 @@ public class OrdensServicoController : ControllerBase
         EntregarOrdemServicoUseCase entregar)
     {
         _abrirOrdemServico = abrirOrdemServico;
-        _criarPreventiva = criarPreventiva;
-        _criarCorretiva = criarCorretiva;
         _registrarDiagnostico = registrarDiagnostico;
         _classificar = classificar;
         _obterStatus = obterStatus;
@@ -54,21 +48,6 @@ public class OrdensServicoController : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = resultado.Id }, resultado);
     }
 
-    [HttpPost("preventiva")]
-    public async Task<IActionResult> CriarPreventiva([FromBody] CriarOsPreventivaRequest req, CancellationToken ct)
-    {
-        var response = await _criarPreventiva.Executar(req.VeiculoId, req.ServicoIds, ct);
-        return CreatedAtAction(nameof(ObterPorId), new { id = response.Id }, response);
-    }
-
-    [HttpPost("corretiva")]
-    public async Task<IActionResult> CriarCorretiva([FromBody] CriarOsCorretivaRequest req, CancellationToken ct)
-    {
-        var response = await _criarCorretiva.Executar(req.VeiculoId, ct);
-        return CreatedAtAction(nameof(ObterPorId), new { id = response.Id }, response);
-    }
-
-
     [HttpPost("{id:guid}/classificar")]
     public async Task<IActionResult> Classificar(Guid id, [FromBody] ClassificarOrdemServicoRequest req, CancellationToken ct)
     {
@@ -76,7 +55,7 @@ public class OrdensServicoController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{id:guid}/diagnosticos")]
+    [HttpPost("{id:guid}/diagnostico")]
     public async Task<IActionResult> RegistrarDiagnostico(Guid id, [FromBody] RegistrarDiagnosticoRequest req, CancellationToken ct)
     {
         var response = await _registrarDiagnostico.Executar(id, req.Descricao, req.ServicoIds, ct);

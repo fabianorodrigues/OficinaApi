@@ -13,19 +13,26 @@ public class VeiculosController : ControllerBase
 {
     private readonly CadastrarVeiculoUseCase _cadastrar;
     private readonly AtualizarVeiculoUseCase _atualizar;
+    private readonly ListarVeiculosUseCase _listar;
     private readonly ObterVeiculoUseCase _obter;
-    private readonly ListarVeiculosPorClienteUseCase _listarPorCliente;
 
     public VeiculosController(
         CadastrarVeiculoUseCase cadastrar,
         AtualizarVeiculoUseCase atualizar,
-        ObterVeiculoUseCase obter,
-        ListarVeiculosPorClienteUseCase listarPorCliente)
+        ListarVeiculosUseCase listar,
+        ObterVeiculoUseCase obter)
     {
         _cadastrar = cadastrar;
         _atualizar = atualizar;
+        _listar = listar;
         _obter = obter;
-        _listarPorCliente = listarPorCliente;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+    {
+        var lista = await _listar.Executar(ct);
+        return Ok(lista.Select(Mapear));
     }
 
     [HttpPost]
@@ -39,14 +46,7 @@ public class VeiculosController : ControllerBase
     public async Task<IActionResult> ObterPorId(Guid id, CancellationToken ct)
     {
         var v = await _obter.Executar(id, ct);
-        return Ok(new
-        {
-            v.Id,
-            v.ClienteId,
-            placa = v.Placa.Valor,
-            renavam = v.Renavam.Valor,
-            modelo = new { descricao = v.Modelo.Descricao, marca = v.Modelo.Marca, ano = v.Modelo.Ano }
-        });
+        return Ok(Mapear(v));
     }
 
     [HttpPut("{id:guid}")]
@@ -56,16 +56,13 @@ public class VeiculosController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("por-cliente/{clienteId:guid}")]
-    public async Task<IActionResult> ListarPorCliente(Guid clienteId, CancellationToken ct)
-    {
-        var lista = await _listarPorCliente.Executar(clienteId, ct);
-        return Ok(lista.Select(v => new
+    private static object Mapear(Oficina.Domain.Cadastro.Veiculo v)
+        => new
         {
             v.Id,
+            v.ClienteId,
             placa = v.Placa.Valor,
             renavam = v.Renavam.Valor,
             modelo = new { descricao = v.Modelo.Descricao, marca = v.Modelo.Marca, ano = v.Modelo.Ano }
-        }));
-    }
+        };
 }

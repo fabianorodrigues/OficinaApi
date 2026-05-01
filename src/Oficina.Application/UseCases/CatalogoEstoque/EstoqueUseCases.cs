@@ -4,6 +4,32 @@ using Oficina.Application.Shared;
 
 namespace Oficina.Application.UseCases.CatalogoEstoque;
 
+public class ListarEstoqueUseCase
+{
+    private readonly ICatalogoEstoqueRepository _repo;
+    public ListarEstoqueUseCase(ICatalogoEstoqueRepository repo) => _repo = repo;
+
+    public async Task<EstoqueResponse> Executar(CancellationToken ct)
+    {
+        var pecas = await _repo.ListarEstoquePecas(ct);
+        var insumos = await _repo.ListarEstoqueInsumos(ct);
+
+        return new EstoqueResponse
+        {
+            Pecas = pecas.Select(x => new EstoquePecaResponse
+            {
+                PecaId = x.PecaId,
+                Quantidade = x.Quantidade
+            }).ToList(),
+            Insumos = insumos.Select(x => new EstoqueInsumoResponse
+            {
+                InsumoId = x.InsumoId,
+                Quantidade = x.Quantidade
+            }).ToList()
+        };
+    }
+}
+
 public class ObterEstoquePecaUseCase
 {
     private readonly ICatalogoEstoqueRepository _repo;
