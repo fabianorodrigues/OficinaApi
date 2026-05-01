@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oficina-config
+  namespace: oficina
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_URLS: "http://+:8080"
+  RUN_MIGRATION: "true"
+  Jwt__Issuer: "Oficina.Api"
+  Jwt__Audience: "Oficina.Api"
+  Jwt__ExpirationMinutes: "120"
+  Jwt__ExpMinutes: "120"
+  EmailSettings__SmtpHost: "smtp4dev"
+  EmailSettings__SmtpPort: "25"
+  EmailSettings__EnableSsl: "false"
+  EmailSettings__From: "no-reply@oficina.local"
+  EmailSettings__BaseUrlSmtp: "http://localhost:5000"
+  EmailSettings__BaseUrlAprovaRecusaOrcamento: "http://localhost:8080"
+  AdminInicial__Enabled: "true"
+  AdminInicial__Nome: "Admin Local"
