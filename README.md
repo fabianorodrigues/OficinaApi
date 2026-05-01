@@ -38,41 +38,132 @@ A aplicação segue **Clean Architecture** com organização modular e conceitos
 ## 4) Como executar o projeto
 
 Você pode rodar de **2 formas**:
-- **Opção A: Docker Compose + API local (dotnet run)**
-- **Opção B: Kubernetes local com Minikube (imagem no Docker Hub)**
+- **Opção A: Docker Compose (API + SQL Server + smtp4dev)**
+- **Opção B: Kubernetes local com Minikube**
 
-### Opção A) Docker Compose + API local
+### Opção A) Docker Compose
 
 #### Pré-requisitos
-- .NET SDK 9
 - Docker + Docker Compose
-- `dotnet-ef`
+- .NET SDK 9 e `dotnet-ef`, apenas se você optar por aplicar migrations manualmente fora do container
 
-#### 1. Subir infraestrutura (SQL Server + smtp4dev)
+#### 1. Conferir variáveis locais
+O arquivo `docker/.env.example` possui valores fictícios para desenvolvimento local. Ele não contém secrets reais.
+
+Para executar sem criar arquivo local:
 ```bash
-docker compose -f docker/docker-compose.yml up -d sqlserver smtp4dev
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml up --build
 ```
 
-#### 2. Aplicar migrations
+Para customizar valores:
 ```bash
-dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj
+cp docker/.env.example docker/.env
+docker compose --env-file docker/.env -f docker/docker-compose.yml up --build
 ```
 
-#### 3. Subir a API
+Principais variáveis:
+- `COMPOSE_PROJECT_NAME`: nome do projeto Compose usado para agrupar rede e volumes
+- `API_IMAGE_REPOSITORY`: nome/repositório da imagem da API
+- `API_IMAGE_TAG`: tag local da imagem da API
+- `MSSQL_SA_PASSWORD`: senha local forte do usuário `sa`
+- `JWT_SECRET`: segredo JWT local com pelo menos 32 caracteres
+- `RUN_MIGRATION`: `true` no `.env.example` para facilitar o primeiro boot local; use `false` fora de desenvolvimento
+- `ADMIN_INICIAL_*`: credenciais fictícias do admin local de bootstrap
+
+#### 2. Build da imagem da API
+Antes do build, você pode validar a configuração renderizada:
 ```bash
-dotnet run --project src/Oficina.Api
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml config
 ```
 
-#### 4. Acessar Swagger
+Resultado esperado:
 ```text
-http://localhost:49324/swagger
+name: oficina-api
+image: oficina-api:local
+container_name: oficina-api
 ```
 
-> Para subir API + SQL Server + smtp4dev via compose:
->
-> ```bash
-> docker compose -f docker/docker-compose.yml up --build
-> ```
+Build manual:
+```bash
+docker build -t oficina-api:local -f docker/Dockerfile .
+```
+
+Build via Compose:
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml build api
+```
+
+Por padrão, o Compose gera a imagem `oficina-api:local`. Para publicar em registry ou versionar builds, ajuste:
+```env
+API_IMAGE_REPOSITORY=seu-registry/oficina-api
+API_IMAGE_TAG=v1.0.0
+```
+
+Evite depender de `latest` em deploys versionados. Prefira tags imutáveis como SHA do commit, versão semântica ou número do build.
+
+#### 3. Subir API, SQL Server e smtp4dev
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml up --build
+```
+
+#### 4. Acessar os serviços
+- Swagger: `http://localhost:8080/swagger`
+- Healthcheck da API: `http://localhost:8080/health`
+- smtp4dev: `http://localhost:5000`
+- SQL Server local: `localhost,1433`
+
+#### 5. Aplicar migrations
+No fluxo local recomendado, `docker/.env.example` define `RUN_MIGRATION=true`, então as migrations são aplicadas no startup da API para facilitar a primeira execução.
+
+Em produção, Kubernetes ou ambientes compartilhados, mantenha `RUN_MIGRATION=false` e aplique migrations de forma controlada.
+
+Opção manual, via host:
+```bash
+dotnet ef database update -p src/Oficina.Infrastructure/Oficina.Infrastructure.csproj -s src/Oficina.Api/Oficina.Api.csproj --connection "Server=localhost,1433;Database=OficinaDb;User Id=sa;Password=Oficina_dev_2026!;TrustServerCertificate=True;"
+```
+
+Para forçar migrations automáticas sem usar `.env.example`:
+```bash
+RUN_MIGRATION=true docker compose -f docker/docker-compose.yml up --build
+```
+
+No PowerShell:
+```powershell
+$env:RUN_MIGRATION="true"; docker compose -f docker/docker-compose.yml up --build
+```
+
+#### 6. Login local de funcionário/admin
+Depois das migrations, o bootstrap cria um admin local fictício se `ADMIN_INICIAL_ENABLED=true`:
+
+```json
+{
+  "cpf": "39053344705",
+  "senha": "Senha@123"
+}
+```
+
+Endpoint: `POST http://localhost:8080/api/auth/funcionario`
+
+#### 7. Parar e limpar containers
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml down
+```
+
+Para remover também os volumes locais do SQL Server e smtp4dev:
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml down -v
+```
+
+#### 8. Troubleshooting rápido
+- Porta ocupada: altere `API_HTTP_PORT`, `SQLSERVER_PORT`, `SMTP4DEV_WEB_PORT` ou `SMTP4DEV_SMTP_PORT` no arquivo `.env`.
+- Nome `docker` aparecendo no Compose: use este arquivo atualizado, que fixa o projeto como `oficina-api`.
+- SQL Server demorando: aguarde o healthcheck; o primeiro boot pode levar alguns minutos.
+- Erro de senha SQL: use senha forte e, se trocar depois de criar o volume, remova o volume com `down -v`.
+- Migrations: para execução local simples use `RUN_MIGRATION=true`; para produção use `false` e rode migrations de forma controlada.
+- Swagger: fica exposto no fluxo local; restrinja por ambiente antes de publicar a API.
+
+> Os valores do compose e de `docker/.env.example` são apenas para desenvolvimento local. Em produção ou Kubernetes, configure secrets e variáveis por ambiente.
+> Se você já criou volumes antigos com prefixo `docker_`, eles não serão reutilizados automaticamente após a troca para `oficina-api_`.
 
 ### Opção B) Kubernetes local com Minikube
 
@@ -140,7 +231,7 @@ A integração externa de aprovação/recusa de orçamento usa token por link de
 - Base URL aprovação/recusa (Development): `https://localhost:49323`
 - Base URL aprovação/recusa (Docker): `http://localhost:8080`
 
-Configurações para fluxo de aprovação e recusa de orçamento por e-mail no appsettings:
+Configurações para fluxo de aprovação e recusa de orçamento por e-mail:
 - `EmailSettings:SmtpHost`
 - `EmailSettings:SmtpPort`
 - `EmailSettings:EnableSsl`

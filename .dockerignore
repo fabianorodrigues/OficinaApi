@@ -11,5 +11,6 @@ coverage
 *.suo
 .env
 docker/.env
+.dotnet-cli-home
 README.md
 badges
