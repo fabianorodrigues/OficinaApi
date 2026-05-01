@@ -62,6 +62,7 @@ docker compose --env-file docker/.env -f docker/docker-compose.yml up --build
 ```
 
 Principais variáveis:
+- `COMPOSE_PROJECT_NAME`: nome do projeto Compose usado para agrupar rede e volumes
 - `API_IMAGE_REPOSITORY`: nome/repositório da imagem da API
 - `API_IMAGE_TAG`: tag local da imagem da API
 - `MSSQL_SA_PASSWORD`: senha local forte do usuário `sa`
@@ -70,6 +71,18 @@ Principais variáveis:
 - `ADMIN_INICIAL_*`: credenciais fictícias do admin local de bootstrap
 
 #### 2. Build da imagem da API
+Antes do build, você pode validar a configuração renderizada:
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml config
+```
+
+Resultado esperado:
+```text
+name: oficina-api
+image: oficina-api:local
+container_name: oficina-api
+```
+
 Build manual:
 ```bash
 docker build -t oficina-api:local -f docker/Dockerfile .
@@ -143,12 +156,14 @@ docker compose --env-file docker/.env.example -f docker/docker-compose.yml down 
 
 #### 8. Troubleshooting rápido
 - Porta ocupada: altere `API_HTTP_PORT`, `SQLSERVER_PORT`, `SMTP4DEV_WEB_PORT` ou `SMTP4DEV_SMTP_PORT` no arquivo `.env`.
+- Nome `docker` aparecendo no Compose: use este arquivo atualizado, que fixa o projeto como `oficina-api`.
 - SQL Server demorando: aguarde o healthcheck; o primeiro boot pode levar alguns minutos.
 - Erro de senha SQL: use senha forte e, se trocar depois de criar o volume, remova o volume com `down -v`.
 - Migrations: para execução local simples use `RUN_MIGRATION=true`; para produção use `false` e rode migrations de forma controlada.
 - Swagger: fica exposto no fluxo local; restrinja por ambiente antes de publicar a API.
 
 > Os valores do compose e de `docker/.env.example` são apenas para desenvolvimento local. Em produção ou Kubernetes, configure secrets e variáveis por ambiente.
+> Se você já criou volumes antigos com prefixo `docker_`, eles não serão reutilizados automaticamente após a troca para `oficina-api_`.
 
 ### Opção B) Kubernetes local com Minikube
 
