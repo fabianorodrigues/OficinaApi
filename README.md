@@ -33,15 +33,7 @@ Projeto organizado com Clean Architecture, DDD e Use Cases:
 
 ## Como Executar
 
-Pré-requisitos:
-
-- .NET SDK 9
-- Docker Desktop
-- SQL Server LocalDB ou SQL Server via Docker
-- kubectl e Minikube, para execução via Kubernetes local
-
-Variáveis principais:
-
+Variáveis principais usadas pela aplicação:
 | Variável | Uso |
 | --- | --- |
 | `ConnectionStrings__SqlServer` | Conexão com SQL Server |
@@ -50,27 +42,72 @@ Variáveis principais:
 | `RUN_MIGRATION` | Executa migrations na inicialização |
 | `AdminInicial__Nome` / `AdminInicial__Cpf` / `AdminInicial__Senha` | Bootstrap do primeiro admin |
 
-Subir com Docker Compose:
+### Opção 1 - Executar Com dotnet
 
-```powershell
-docker compose -f docker/docker-compose.yml up --build
-```
+Pré-requisitos:
 
-Executar localmente:
+- .NET SDK 9
+- SQL Server LocalDB ou SQL Server acessível
 
-```powershell
-dotnet run --project src/Oficina.Api/Oficina.Api.csproj
-```
+Por padrão, a execução local usa `src/Oficina.Api/appsettings.Development.json`.
 
-Aplicar migrations manualmente:
+Aplicar migrations:
 
 ```powershell
 dotnet ef database update --project src/Oficina.Infrastructure --startup-project src/Oficina.Api
 ```
 
-### Executando Via Kubernetes Local (Minikube)
+Subir a API:
+
+```powershell
+dotnet run --project src/Oficina.Api/Oficina.Api.csproj
+```
+
+Acesso:
+
+| Recurso | URL |
+| --- | --- |
+| Swagger | `https://localhost:5001/swagger` |
+
+### Opção 2 - Executar Com Docker Compose
+
+Pré-requisito:
+
+- Docker Desktop
+
+Essa é a opção recomendada para avaliação, porque sobe API, SQL Server e smtp4dev juntos.
+
+```powershell
+Copy-Item docker/.env.example docker/.env
+```
+
+Revise `docker/.env` se precisar alterar portas, senha do SQL Server ou credenciais do admin inicial. Depois suba os serviços informando o arquivo de ambiente:
+
+```powershell
+docker compose --env-file docker/.env -f docker/docker-compose.yml up --build
+```
+
+Esse comando sobe API, SQL Server e smtp4dev. A API usa o host interno `sqlserver` na connection string e executa migrations quando `RUN_MIGRATION=true`.
+
+Acessos:
+
+| Recurso | URL |
+| --- | --- |
+| Swagger | `http://localhost:8080/swagger` |
+| Healthcheck | `http://localhost:8080/health` |
+| smtp4dev | `http://localhost:5000` |
+
+### Opção 3 - Executar Com Kubernetes Local (Minikube)
+
+Pré-requisitos:
+
+- Docker Desktop
+- kubectl
+- Minikube
 
 Os manifests locais ficam em `k8s/local` e usam valores apenas de desenvolvimento. No Minikube, `RUN_MIGRATION=true` aplica migrations na inicialização da API para facilitar a avaliação local.
+
+Subir o ambiente:
 
 ```powershell
 minikube start
@@ -82,7 +119,9 @@ kubectl get pods -n oficina
 kubectl get svc -n oficina
 ```
 
-Acessar API:
+Importante: `minikube docker-env | Invoke-Expression` deve ser executado antes do `docker build`, para que a imagem seja criada dentro do Docker daemon do Minikube.
+
+Acessar API em um terminal:
 
 ```powershell
 kubectl port-forward svc/oficina-api 8080:80 -n oficina
@@ -90,7 +129,7 @@ kubectl port-forward svc/oficina-api 8080:80 -n oficina
 
 Swagger: `http://localhost:8080/swagger`
 
-Acessar smtp4dev:
+Acessar smtp4dev em outro terminal:
 
 ```powershell
 kubectl port-forward svc/smtp4dev 5000:80 -n oficina
@@ -106,15 +145,13 @@ kubectl delete -f k8s/local
 
 O HPA em `k8s/local/hpa.yaml` depende do `metrics-server` habilitado no Minikube.
 
-Acessos principais:
+Resumo dos acessos:
 
-| Recurso | URL |
+| Opção | Swagger | smtp4dev |
 | --- | --- |
-| Swagger via Docker | `http://localhost:8080/swagger` |
-| Healthcheck via Docker | `http://localhost:8080/health` |
-| Swagger local HTTPS | `https://localhost:5001/swagger` |
-| Swagger via Minikube | `http://localhost:8080/swagger` após port-forward |
-| smtp4dev via Minikube | `http://localhost:5000` após port-forward |
+| dotnet | `https://localhost:5001/swagger` | depende do SMTP configurado localmente |
+| Docker Compose | `http://localhost:8080/swagger` | `http://localhost:5000` |
+| Minikube | `http://localhost:8080/swagger` após port-forward | `http://localhost:5000` após port-forward |
 
 ## Integração De E-mail
 
