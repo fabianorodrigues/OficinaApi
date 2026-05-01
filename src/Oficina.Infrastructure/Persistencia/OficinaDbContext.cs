@@ -3,6 +3,7 @@ using Oficina.Infrastructure.Persistencia.Mapeamentos;
 using Oficina.Domain.Cadastro;
 using Oficina.Domain.CatalogoEstoque;
 using Oficina.Domain.Oficina;
+using Oficina.Domain.Seguranca;
 
 namespace Oficina.Infrastructure.Persistencia;
 
@@ -21,6 +22,7 @@ public class OficinaDbContext : DbContext
 
     public DbSet<OrdemServico> OrdensServico => Set<OrdemServico>();
     public DbSet<Orcamento> Orcamentos => Set<Orcamento>();
+    public DbSet<Funcionario> Funcionarios => Set<Funcionario>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,5 +37,6 @@ public class OficinaDbContext : DbContext
 
         modelBuilder.ApplyConfiguration(new OrdemServicoMap());
         modelBuilder.ApplyConfiguration(new OrcamentoMap());
+        modelBuilder.ApplyConfiguration(new FuncionarioMap());
     }
 }

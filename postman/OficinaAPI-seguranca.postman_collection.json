@@ -1,0 +1,97 @@
+{
+  "info": {
+    "name": "Oficina API - Segurança",
+    "description": "Cenarios de autenticacao por perfil, administracao de funcionarios e ownership do cliente.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth - Cliente",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cpf\": \"39053344705\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/cliente"
+      }
+    },
+    {
+      "name": "Auth - Funcionario/Admin",
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cpf\": \"{{adminCpf}}\",\n  \"senha\": \"{{adminSenha}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/funcionario"
+      }
+    },
+    {
+      "name": "Admin - Criar Funcionario",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Maria Oficina\",\n  \"cpf\": \"39053344705\",\n  \"senha\": \"Senha@123\",\n  \"perfil\": \"Funcionario\"\n}"
+        },
+        "url": "{{baseUrl}}/api/admin/funcionarios"
+      }
+    },
+    {
+      "name": "Admin - Criar Admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nome\": \"Outro Admin\",\n  \"cpf\": \"52998224725\",\n  \"senha\": \"Senha@123\",\n  \"perfil\": \"Admin\"\n}"
+        },
+        "url": "{{baseUrl}}/api/admin/funcionarios"
+      }
+    },
+    {
+      "name": "Cliente - Minhas OS",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{clienteToken}}" }],
+        "url": "{{baseUrl}}/api/minhas-ordens-servico"
+      }
+    },
+    {
+      "name": "Cliente - Tenta Rota Interna",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{clienteToken}}" }],
+        "url": "{{baseUrl}}/api/ordens-servico"
+      }
+    },
+    {
+      "name": "Funcionario - Tenta Rota Admin",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{funcionarioToken}}" }],
+        "url": "{{baseUrl}}/api/admin/funcionarios"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "https://localhost:5001" },
+    { "key": "adminCpf", "value": "" },
+    { "key": "adminSenha", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "funcionarioToken", "value": "" },
+    { "key": "clienteToken", "value": "" }
+  ]
+}

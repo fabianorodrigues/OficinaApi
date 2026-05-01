@@ -242,6 +242,66 @@ Saída de cobertura (formato Cobertura):
 - validação de CPF/CNPJ com dígitos verificadores no domínio;
 - tratamento global de exceções na API.
 
+### 9.1 Segurança por perfis
+
+A API possui três perfis no JWT:
+
+| Perfil | Autenticação | Acesso |
+| --- | --- | --- |
+| Cliente | `POST /api/auth/cliente` com CPF cadastrado | Somente recursos próprios pelas rotas `api/minhas-*` e `api/meus-*` |
+| Funcionário | `POST /api/auth/funcionario` com CPF + senha | Rotas internas da oficina, exceto rotas `AdminOnly` |
+| Admin | `POST /api/auth/funcionario` com CPF + senha | Tudo que funcionário acessa e endpoints administrativos |
+
+Claims emitidas:
+- `sub`
+- `cpf`
+- `role`
+- `clienteId`, quando o perfil for Cliente
+- `funcionarioId`, quando o perfil for Funcionário ou Admin
+
+Configuração JWT:
+```json
+{
+  "Jwt": {
+    "Issuer": "Oficina.Api",
+    "Audience": "Oficina.Api",
+    "Secret": "CHAVE_COM_PELO_MENOS_32_CARACTERES",
+    "ExpirationMinutes": 120
+  }
+}
+```
+
+Admin inicial:
+```json
+{
+  "AdminInicial": {
+    "Enabled": true,
+    "Nome": "Admin Local",
+    "Cpf": "39053344705",
+    "Senha": "Senha@123"
+  }
+}
+```
+
+O admin inicial é criado apenas se `AdminInicial` estiver habilitado em ambiente de desenvolvimento/homologação ou por configuração explícita, e somente quando não existir funcionário/admin com o CPF informado. A senha é armazenada como hash e não há credencial `admin/admin` fixa no código.
+
+Endpoints administrativos `AdminOnly`:
+- `POST /api/admin/funcionarios`
+- `GET /api/admin/funcionarios`
+- `GET /api/admin/funcionarios/{id}`
+- `PUT /api/admin/funcionarios/{id}`
+- `PATCH /api/admin/funcionarios/{id}/alterar-senha`
+- `PATCH /api/admin/funcionarios/{id}/ativar`
+- `PATCH /api/admin/funcionarios/{id}/inativar`
+
+Rotas do cliente autenticado:
+- `GET /api/minhas-ordens-servico`
+- `GET /api/minhas-ordens-servico/{id}`
+- `GET /api/minhas-ordens-servico/{id}/status`
+- `GET /api/meus-orcamentos/{id}`
+- `POST /api/meus-orcamentos/{id}/aprovar`
+- `POST /api/meus-orcamentos/{id}/recusar`
+
 ## 10) Vídeo de demonstração
 
 - [Vídeo](https://youtu.be/8kAxO5SFWiY)

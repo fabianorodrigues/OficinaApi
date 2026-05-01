@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Api.Security;
 using Oficina.Application.UseCases.Oficina;
 
 namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/relatorios")]
-[Authorize]
+[Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class RelatoriosController : ControllerBase
 {
     private readonly RelatorioTempoMedioExecucaoUseCase _tempoMedio;

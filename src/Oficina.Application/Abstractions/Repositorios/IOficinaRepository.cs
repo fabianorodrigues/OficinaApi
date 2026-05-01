@@ -6,6 +6,7 @@ public interface IOficinaRepository
 {
     Task<OrdemServico?> ObterOrdemServico(Guid id, CancellationToken ct);
     Task<IReadOnlyList<OrdemServico>> ListarOrdensServico(CancellationToken ct);
+    Task<IReadOnlyList<OrdemServico>> ListarOrdensServicoPorVeiculos(IReadOnlyCollection<Guid> veiculoIds, CancellationToken ct);
     Task AdicionarOrdemServico(OrdemServico os, CancellationToken ct);
 
     Task<Orcamento?> ObterOrcamento(Guid id, CancellationToken ct);

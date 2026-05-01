@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Oficina.Api.Security;
 using Oficina.Application.DTO.Oficina;
 using Oficina.Application.UseCases.Oficina;
 
@@ -7,7 +8,7 @@ namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/ordens-servico")]
-[Authorize]
+[Authorize(Policy = Policies.FuncionarioOuAdmin)]
 public class OrdensServicoController : ControllerBase
 {
     private readonly AbrirOrdemServicoUseCase _abrirOrdemServico;

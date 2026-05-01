@@ -1,57 +1,55 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
+using Oficina.Application.Abstractions.Seguranca;
+using Oficina.Application.DTO.Seguranca;
+using Oficina.Application.UseCases.Seguranca;
 
 namespace Oficina.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
+[AllowAnonymous]
 public class AuthController : ControllerBase
 {
-    private readonly IConfiguration _config;
+    private readonly AutenticarClienteUseCase _autenticarCliente;
+    private readonly AutenticarFuncionarioUseCase _autenticarFuncionario;
+    private readonly IJwtTokenService _jwt;
 
-    public AuthController(IConfiguration config) => _config = config;
+    public AuthController(
+        AutenticarClienteUseCase autenticarCliente,
+        AutenticarFuncionarioUseCase autenticarFuncionario,
+        IJwtTokenService jwt)
+    {
+        _autenticarCliente = autenticarCliente;
+        _autenticarFuncionario = autenticarFuncionario;
+        _jwt = jwt;
+    }
 
-    public record LoginRequest(string Usuario, string Senha);
+    [HttpPost("cliente")]
+    public async Task<IActionResult> LoginCliente([FromBody] LoginClienteRequest request, CancellationToken ct)
+    {
+        var cliente = await _autenticarCliente.Executar(request.Cpf, ct);
+        return Ok(new AuthTokenResponse
+        {
+            AccessToken = _jwt.GerarTokenCliente(cliente),
+            Perfil = "Cliente",
+            ClienteId = cliente.Id
+        });
+    }
+
+    [HttpPost("funcionario")]
+    public async Task<IActionResult> LoginFuncionario([FromBody] LoginFuncionarioRequest request, CancellationToken ct)
+    {
+        var funcionario = await _autenticarFuncionario.Executar(request.Cpf, request.Senha, ct);
+        return Ok(new AuthTokenResponse
+        {
+            AccessToken = _jwt.GerarTokenFuncionario(funcionario),
+            Perfil = funcionario.Perfil.ToString(),
+            FuncionarioId = funcionario.Id
+        });
+    }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginRequest req)
-    {
-        if (req.Usuario != "admin" || req.Senha != "admin")
-            return Unauthorized(new { erro = "Credenciais inválidas." });
-
-        var token = GerarToken(req.Usuario);
-        return Ok(new { accessToken = token });
-    }
-
-    private string GerarToken(string usuario)
-    {
-        var key = _config["Jwt:Key"]!;
-        var issuer = _config["Jwt:Issuer"]!;
-        var audience = _config["Jwt:Audience"]!;
-        var expMinutes = int.TryParse(_config["Jwt:ExpMinutes"], out var m) ? m : 120;
-
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Sub, usuario),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, usuario),
-            new(ClaimTypes.Role, "Interno")
-        };
-
-        var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expMinutes),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+    public async Task<IActionResult> LoginCompat([FromBody] LoginCompatRequest request, CancellationToken ct)
+        => await LoginFuncionario(new LoginFuncionarioRequest(request.Usuario, request.Senha), ct);
 }
