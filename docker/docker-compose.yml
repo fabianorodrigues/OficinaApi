@@ -38,6 +38,7 @@ services:
       - oficina-network
 
   api:
+    image: "${API_IMAGE_REPOSITORY:-oficina-api}:${API_IMAGE_TAG:-local}"
     build:
       context: ..
       dockerfile: docker/Dockerfile

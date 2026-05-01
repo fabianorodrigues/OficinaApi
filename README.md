@@ -62,23 +62,44 @@ docker compose --env-file docker/.env -f docker/docker-compose.yml up --build
 ```
 
 Principais variáveis:
+- `API_IMAGE_REPOSITORY`: nome/repositório da imagem da API
+- `API_IMAGE_TAG`: tag local da imagem da API
 - `MSSQL_SA_PASSWORD`: senha local forte do usuário `sa`
 - `JWT_SECRET`: segredo JWT local com pelo menos 32 caracteres
 - `RUN_MIGRATION`: `true` no `.env.example` para facilitar o primeiro boot local; use `false` fora de desenvolvimento
 - `ADMIN_INICIAL_*`: credenciais fictícias do admin local de bootstrap
 
-#### 2. Subir API, SQL Server e smtp4dev
+#### 2. Build da imagem da API
+Build manual:
+```bash
+docker build -t oficina-api:local -f docker/Dockerfile .
+```
+
+Build via Compose:
+```bash
+docker compose --env-file docker/.env.example -f docker/docker-compose.yml build api
+```
+
+Por padrão, o Compose gera a imagem `oficina-api:local`. Para publicar em registry ou versionar builds, ajuste:
+```env
+API_IMAGE_REPOSITORY=seu-registry/oficina-api
+API_IMAGE_TAG=v1.0.0
+```
+
+Evite depender de `latest` em deploys versionados. Prefira tags imutáveis como SHA do commit, versão semântica ou número do build.
+
+#### 3. Subir API, SQL Server e smtp4dev
 ```bash
 docker compose --env-file docker/.env.example -f docker/docker-compose.yml up --build
 ```
 
-#### 3. Acessar os serviços
+#### 4. Acessar os serviços
 - Swagger: `http://localhost:8080/swagger`
 - Healthcheck da API: `http://localhost:8080/health`
 - smtp4dev: `http://localhost:5000`
 - SQL Server local: `localhost,1433`
 
-#### 4. Aplicar migrations
+#### 5. Aplicar migrations
 No fluxo local recomendado, `docker/.env.example` define `RUN_MIGRATION=true`, então as migrations são aplicadas no startup da API para facilitar a primeira execução.
 
 Em produção, Kubernetes ou ambientes compartilhados, mantenha `RUN_MIGRATION=false` e aplique migrations de forma controlada.
@@ -98,7 +119,7 @@ No PowerShell:
 $env:RUN_MIGRATION="true"; docker compose -f docker/docker-compose.yml up --build
 ```
 
-#### 5. Login local de funcionário/admin
+#### 6. Login local de funcionário/admin
 Depois das migrations, o bootstrap cria um admin local fictício se `ADMIN_INICIAL_ENABLED=true`:
 
 ```json
@@ -110,7 +131,7 @@ Depois das migrations, o bootstrap cria um admin local fictício se `ADMIN_INICI
 
 Endpoint: `POST http://localhost:8080/api/auth/funcionario`
 
-#### 6. Parar e limpar containers
+#### 7. Parar e limpar containers
 ```bash
 docker compose --env-file docker/.env.example -f docker/docker-compose.yml down
 ```
@@ -120,7 +141,7 @@ Para remover também os volumes locais do SQL Server e smtp4dev:
 docker compose --env-file docker/.env.example -f docker/docker-compose.yml down -v
 ```
 
-#### 7. Troubleshooting rápido
+#### 8. Troubleshooting rápido
 - Porta ocupada: altere `API_HTTP_PORT`, `SQLSERVER_PORT`, `SMTP4DEV_WEB_PORT` ou `SMTP4DEV_SMTP_PORT` no arquivo `.env`.
 - SQL Server demorando: aguarde o healthcheck; o primeiro boot pode levar alguns minutos.
 - Erro de senha SQL: use senha forte e, se trocar depois de criar o volume, remova o volume com `down -v`.
