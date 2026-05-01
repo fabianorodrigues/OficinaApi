@@ -2,7 +2,6 @@ namespace Oficina.Application.DTO.Seguranca;
 
 public record LoginClienteRequest(string Cpf);
 public record LoginFuncionarioRequest(string Cpf, string Senha);
-public record LoginCompatRequest(string Usuario, string Senha);
 
 public sealed class AuthTokenResponse
 {

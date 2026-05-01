@@ -40,8 +40,6 @@ public class OrdensServicoControllerTests
 
         return new OrdensServicoController(
             new AbrirOrdemServicoUseCase(cadastroRepo.Object, catalogoRepo.Object, oficinaRepo.Object),
-            new CriarOsPreventivaUseCase(cadastroRepo.Object, catalogoRepo.Object, oficinaRepo.Object, notificador.Object),
-            new CriarOsCorretivaUseCase(cadastroRepo.Object, oficinaRepo.Object),
             new RegistrarDiagnosticoUseCase(oficinaRepo.Object, catalogoRepo.Object, notificador.Object),
             new ClassificarOrdemServicoUseCase(oficinaRepo.Object, notificador.Object),
             new ObterStatusOrdemServicoUseCase(oficinaRepo.Object),

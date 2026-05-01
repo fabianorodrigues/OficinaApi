@@ -12,24 +12,34 @@ namespace Oficina.Api.Controllers;
 public class PecasController : ControllerBase
 {
     private readonly CadastrarPecaUseCase _cadastrar;
+    private readonly ListarPecasUseCase _listar;
     private readonly ObterPecaUseCase _obter;
     private readonly AtualizarPecaUseCase _atualizar;
 
     public PecasController(
         CadastrarPecaUseCase cadastrar,
+        ListarPecasUseCase listar,
         ObterPecaUseCase obter,
         AtualizarPecaUseCase atualizar)
     {
         _cadastrar = cadastrar;
+        _listar = listar;
         _obter = obter;
         _atualizar = atualizar;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+    {
+        var pecas = await _listar.Executar(ct);
+        return Ok(pecas.Select(v => new { v.Id, v.Descricao, v.PrecoUnitario }));
     }
 
     [HttpPost]
     public async Task<IActionResult> Cadastrar([FromBody] CadastrarPecaRequest req, CancellationToken ct)
     {
         var id = await _cadastrar.Executar(req.PrecoUnitario, req.Descricao, ct);
-        return CreatedAtAction(nameof(Cadastrar), new { id }, new { id });
+        return CreatedAtAction(nameof(ObterPorId), new { id }, new { id });
     }
 
     [HttpGet("{id:guid}")]

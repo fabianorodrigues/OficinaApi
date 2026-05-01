@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         _jwt = jwt;
     }
 
-    [HttpPost("cliente")]
+    [HttpPost("clientes")]
     public async Task<IActionResult> LoginCliente([FromBody] LoginClienteRequest request, CancellationToken ct)
     {
         var cliente = await _autenticarCliente.Executar(request.Cpf, ct);
@@ -37,7 +37,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPost("funcionario")]
+    [HttpPost("funcionarios")]
     public async Task<IActionResult> LoginFuncionario([FromBody] LoginFuncionarioRequest request, CancellationToken ct)
     {
         var funcionario = await _autenticarFuncionario.Executar(request.Cpf, request.Senha, ct);
@@ -48,8 +48,4 @@ public class AuthController : ControllerBase
             FuncionarioId = funcionario.Id
         });
     }
-
-    [HttpPost("login")]
-    public async Task<IActionResult> LoginCompat([FromBody] LoginCompatRequest request, CancellationToken ct)
-        => await LoginFuncionario(new LoginFuncionarioRequest(request.Usuario, request.Senha), ct);
 }

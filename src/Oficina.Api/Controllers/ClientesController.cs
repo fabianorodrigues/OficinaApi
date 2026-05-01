@@ -14,16 +14,32 @@ public class ClientesController : ControllerBase
 {
     private readonly CadastrarClienteUseCase _cadastrar;
     private readonly AtualizarClienteUseCase _atualizar;
+    private readonly ListarClientesUseCase _listar;
     private readonly ObterClienteUseCase _obter;
 
     public ClientesController(
         CadastrarClienteUseCase cadastrar,
         AtualizarClienteUseCase atualizar,
+        ListarClientesUseCase listar,
         ObterClienteUseCase obter)
     {
         _cadastrar = cadastrar;
         _atualizar = atualizar;
+        _listar = listar;
         _obter = obter;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Listar(CancellationToken ct)
+    {
+        var clientes = await _listar.Executar(ct);
+        return Ok(clientes.Select(cliente => new
+        {
+            cliente.Id,
+            cpfCnpj = cliente.Documento.Valor,
+            nome = cliente.Nome,
+            contato = new { email = cliente.Contato.Email, telefone = cliente.Contato.Telefone }
+        }));
     }
 
     [HttpPost]

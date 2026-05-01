@@ -4,6 +4,15 @@ using Oficina.Domain.Cadastro;
 
 namespace Oficina.Application.UseCases.Cadastro;
 
+public class ListarClientesUseCase
+{
+    private readonly ICadastroRepository _repo;
+    public ListarClientesUseCase(ICadastroRepository repo) => _repo = repo;
+
+    public Task<IReadOnlyList<Cliente>> Executar(CancellationToken ct)
+        => _repo.ListarClientes(ct);
+}
+
 public class ObterClienteUseCase
 {
     private readonly ICadastroRepository _repo;
@@ -20,6 +29,15 @@ public class ObterVeiculoUseCase
 
     public async Task<Veiculo> Executar(Guid id, CancellationToken ct)
         => await _repo.ObterVeiculo(id, ct) ?? throw new OficinaException("Veículo não encontrado.", 404);
+}
+
+public class ListarVeiculosUseCase
+{
+    private readonly ICadastroRepository _repo;
+    public ListarVeiculosUseCase(ICadastroRepository repo) => _repo = repo;
+
+    public Task<IReadOnlyList<Veiculo>> Executar(CancellationToken ct)
+        => _repo.ListarVeiculos(ct);
 }
 
 public class ListarVeiculosPorClienteUseCase
