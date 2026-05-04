@@ -30,28 +30,6 @@ A aplicação permite:
 
 ---
 
-## Destaques Técnicos
-
-- API desenvolvida em **.NET 9**.
-- Organização baseada em **Clean Architecture**, **DDD** e **Use Cases**.
-- Separação entre `Api`, `Application`, `Domain`, `Infrastructure` e `Tests`.
-- Autenticação JWT com perfis:
-  - Cliente;
-  - Funcionário;
-  - Admin.
-- Controle de acesso por perfil.
-- Validação de ownership para rotas do cliente.
-- Fluxo completo de Ordem de Serviço e Orçamento.
-- Integração local de e-mail com `smtp4dev`.
-- Execução local via:
-  - .NET CLI;
-  - Docker Compose;
-  - Kubernetes local com Minikube.
-- Testes automatizados com xUnit, Moq e Coverlet.
-- Collection Postman com cenários sequenciais.
-
----
-
 ## Arquitetura
 
 O projeto segue uma organização baseada em **Clean Architecture**, **DDD** e **Use Cases**, separando responsabilidades entre entrada, aplicação, domínio e infraestrutura.
@@ -101,8 +79,6 @@ O projeto segue uma organização baseada em **Clean Architecture**, **DDD** e *
 | `AdminInicial__Nome` | Nome do admin inicial |
 | `AdminInicial__Cpf` | CPF do admin inicial |
 | `AdminInicial__Senha` | Senha do admin inicial |
-
-> Os valores locais são apenas para desenvolvimento e demonstração. Para ambientes reais, o valores devem ser configurados por variáveis de ambiente, secrets ou ferramentas equivalentes.
 
 ---
 
@@ -553,10 +529,7 @@ As próximas fases da pós-graduação em Software Architecture evoluem esta sol
 
 ## Observações Finais
 
-- Projeto iniciado no contexto do Tech Challenge FIAP e evoluído como aplicação backend de portfólio.
-- Este repositório representa a base funcional das Fases 1 e 2.
-- Valores locais não devem ser usados em produção.
-- Secrets devem ser configuradas por variáveis de ambiente ou ferramentas próprias.
+- Este repositório representa a base funcional das Fases 1 e 2  do Tech Challenge FIAP.
 - O banco usa migrations do Entity Framework Core.
 - `RUN_MIGRATION=true` é recomendado apenas para ambiente local/demonstração.
 - O primeiro admin deve ser criado via bootstrap/configuração segura.
